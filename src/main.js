@@ -1,49 +1,49 @@
-// src/main.js — Entry Point
-import './style.css'
-import { initScene } from './three/scene.js'
-import { initParticles } from './three/particles.js'
-import { initGSAP } from './animations/gsap.config.js'
-import { initScrollAnimations } from './animations/scroll.js'
-import { initAmbientAudio } from './audio/ambient.js'
-import { initHero } from './sections/hero.js'
-import { initServices } from './sections/services.js'
-import { initAIReport } from './sections/ai-report.js'
-import { initWhyUs } from './sections/why-us.js'
-import { initTestimonials } from './sections/testimonials.js'
-import { initContact } from './sections/contact.js'
-import { initCursor } from './utils/cursor.js'
-import { initLoader } from './utils/loader.js'
-import { initLenis } from './utils/lenis.js'
+import './style.css';
+import { initLoader } from './utils/loader.js';
+import { initCursor } from './utils/cursor.js';
+import { initLenis } from './utils/lenis.js';
 
-async function bootstrap() {
-  // Phase 1: Loader
-  const loader = initLoader()
+// Initialize loader immediately
+initLoader();
 
-  // Phase 2: Core systems
-  initCursor()
-  const scene = initScene()
-  initParticles(scene)
+// After loader completes, boot everything else
+document.addEventListener('loaderComplete', async () => {
+  const { initScene } = await import('./three/scene.js');
+  const { initHero } = await import('./sections/hero.js');
+  const { initServices } = await import('./sections/services.js');
+  const { initAIReport } = await import('./sections/ai-report.js');
+  const { initWhyUs } = await import('./sections/why-us.js');
+  const { initTestimonials } = await import('./sections/testimonials.js');
+  const { initContact } = await import('./sections/contact.js');
+  const { initAudio } = await import('./audio/ambient.js');
 
-  // Phase 3: Animations
-  initGSAP()
-  initLenis()
+  initCursor();
+  const lenis = initLenis();
 
-  // Phase 4: Sections
-  initHero()
-  initServices()
-  initAIReport()
-  initWhyUs()
-  initTestimonials()
-  initContact()
+  initScene();
+  initHero();
+  initServices();
+  initAIReport();
+  initWhyUs();
+  initTestimonials();
+  initContact();
 
-  // Phase 5: Scroll-driven
-  initScrollAnimations()
+  // Audio — user must interact first
+  document.addEventListener('click', () => initAudio(), { once: true });
 
-  // Phase 6: Audio (user-initiated)
-  initAmbientAudio()
-
-  // Phase 7: Remove loader
-  loader.complete()
-}
-
-bootstrap()
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    const nav = document.getElementById('navbar');
+    if (window.scrollY > 60) {
+      nav.style.background = 'rgba(5,8,16,0.85)';
+      nav.style.backdropFilter = 'blur(24px)';
+      nav.style.padding = '16px 60px';
+      nav.style.borderBottom = '1px solid rgba(201,168,76,0.1)';
+    } else {
+      nav.style.background = 'transparent';
+      nav.style.backdropFilter = 'none';
+      nav.style.padding = '24px 60px';
+      nav.style.borderBottom = 'none';
+    }
+  });
+});

@@ -4,7 +4,7 @@ import * as THREE from 'three'
 let scene, camera, renderer, clock
 
 export function initScene() {
-  const canvas = document.getElementById('webgl-canvas')
+  const canvas = document.getElementById('three-canvas')
 
   scene = new THREE.Scene()
   scene.fog = new THREE.FogExp2(0x0a0a0f, 0.015)

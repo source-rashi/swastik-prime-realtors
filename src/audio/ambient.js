@@ -1,36 +1,34 @@
 // src/audio/ambient.js — Howler.js Ambient Sound
-import { Howl } from 'howler'
+import { Howl } from 'howler';
 
-let ambientSound = null
-let isPlaying = false
+let ambientSound = null;
+let isPlaying = false;
 
-export function initAmbientAudio() {
-  const toggle = document.getElementById('audio-toggle')
-  if (!toggle) return
+export function initAudio() {
+  if (ambientSound) return;
 
-  toggle.addEventListener('click', () => {
-    if (!ambientSound) {
-      // Lazy-load audio on first interaction
-      ambientSound = new Howl({
-        src: ['/audio/ambient.mp3'],
-        loop: true,
-        volume: 0.15,
-        html5: true
-      })
-    }
+  ambientSound = new Howl({
+    src: ['/audio/ambient.mp3'],
+    loop: true,
+    volume: 0.15,
+    html5: true,
+  });
 
-    if (isPlaying) {
-      ambientSound.fade(0.15, 0, 500)
-      setTimeout(() => ambientSound.pause(), 500)
-      toggle.classList.remove('active')
-    } else {
-      ambientSound.play()
-      ambientSound.fade(0, 0.15, 500)
-      toggle.classList.add('active')
-    }
+  // Don't autoplay — just prepare. Toggle via UI if needed.
+  console.log('[Audio] Ambient audio initialized');
+}
 
-    isPlaying = !isPlaying
-  })
+export function toggleAudio() {
+  if (!ambientSound) return;
 
-  console.log('[Audio] Ambient audio ready')
+  if (isPlaying) {
+    ambientSound.fade(0.15, 0, 500);
+    setTimeout(() => ambientSound.pause(), 500);
+  } else {
+    ambientSound.play();
+    ambientSound.fade(0, 0.15, 500);
+  }
+
+  isPlaying = !isPlaying;
+  return isPlaying;
 }

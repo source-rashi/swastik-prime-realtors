@@ -1,32 +1,41 @@
-// src/utils/loader.js — Preloader
-import gsap from 'gsap'
+/**
+ * CINEMATIC LOADER
+ * Full-screen preloader with animated counter and reveal
+ */
+import gsap from 'gsap';
 
 export function initLoader() {
-  const loader = document.getElementById('loader')
-  const progress = document.querySelector('.loader-progress')
-  let value = 0
+  const loaderEl = document.getElementById('loader');
+  const counterEl = document.getElementById('loader-counter');
+  const progressEl = document.getElementById('loader-progress');
+  const logoEl = document.getElementById('loader-logo');
 
+  let progress = 0;
+
+  // Simulate asset loading progress
   const interval = setInterval(() => {
-    value += Math.random() * 15
-    if (value > 100) value = 100
-    if (progress) progress.style.width = value + '%'
-    if (value >= 100) clearInterval(interval)
-  }, 100)
-
-  return {
-    complete() {
-      if (progress) progress.style.width = '100%'
-      clearInterval(interval)
-
-      gsap.to(loader, {
-        opacity: 0,
-        duration: 0.8,
-        delay: 0.5,
-        ease: 'power2.inOut',
-        onComplete: () => {
-          if (loader) loader.style.display = 'none'
-        }
-      })
+    progress += Math.random() * 12;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+      setTimeout(revealSite, 400);
     }
+    counterEl.textContent = Math.floor(progress).toString().padStart(2, '0');
+    progressEl.style.transform = `scaleX(${progress / 100})`;
+  }, 80);
+
+  function revealSite() {
+    const tl = gsap.timeline();
+    tl.to(logoEl, { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' })
+      .to('#loader-progress-wrap', { opacity: 0, duration: 0.3 }, '<')
+      .to(loaderEl, {
+        clipPath: 'inset(0 0 100% 0)',
+        duration: 1.2,
+        ease: 'power4.inOut',
+      })
+      .set(loaderEl, { display: 'none' })
+      .call(() => {
+        document.dispatchEvent(new CustomEvent('loaderComplete'));
+      });
   }
 }
