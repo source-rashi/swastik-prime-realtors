@@ -3,6 +3,9 @@ import { initLoader } from './utils/loader.js';
 import { initCursor } from './utils/cursor.js';
 import { initLenis } from './utils/lenis.js';
 
+// Import GSAP config for global batch reveals
+import './animations/gsap.config.js';
+
 // Initialize loader immediately
 initLoader();
 
@@ -16,6 +19,7 @@ document.addEventListener('loaderComplete', async () => {
   const { initTestimonials } = await import('./sections/testimonials.js');
   const { initContact } = await import('./sections/contact.js');
   const { initAudio } = await import('./audio/ambient.js');
+  const { ScrollTrigger } = await import('gsap/ScrollTrigger');
 
   initCursor();
   const lenis = initLenis();
@@ -45,5 +49,28 @@ document.addEventListener('loaderComplete', async () => {
       nav.style.padding = '24px 60px';
       nav.style.borderBottom = 'none';
     }
+  });
+
+  // Nav link active states on scroll
+  const sections = ['hero','services','ai-report','why-us','testimonials','contact'];
+  sections.forEach(id => {
+    ScrollTrigger.create({
+      trigger: `#${id}`,
+      start: 'top 50%',
+      end: 'bottom 50%',
+      onToggle: (self) => {
+        if (self.isActive) {
+          document.querySelectorAll('nav a').forEach(l => l.style.color = 'rgba(245,245,240,0.5)');
+          const active = document.querySelector(`[href="#${id}"]`);
+          if (active) active.style.color = 'var(--gold)';
+        }
+      },
+    });
+  });
+
+  // Hover glow on nav links
+  document.querySelectorAll('nav a').forEach(a => {
+    a.addEventListener('mouseenter', () => a.style.color = 'var(--gold)');
+    a.addEventListener('mouseleave', () => a.style.color = 'rgba(245,245,240,0.5)');
   });
 });
