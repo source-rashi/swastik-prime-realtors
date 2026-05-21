@@ -27,6 +27,20 @@ document.addEventListener('loaderDone', async () => {
   initTestimonials();
   initContact();
 
+  // Generic scroll reveals across all sections (catch-all)
+  ScrollTrigger.batch('.will-reveal', {
+    onEnter: els => gsap.to(els, { opacity:1, y:0, duration:0.8, ease:'power3.out', stagger:0.1 }),
+    start: 'top 85%',
+  });
+  ScrollTrigger.batch('.will-reveal-left', {
+    onEnter: els => gsap.to(els, { opacity:1, x:0, duration:0.8, ease:'power3.out', stagger:0.1 }),
+    start: 'top 85%',
+  });
+  ScrollTrigger.batch('.will-reveal-right', {
+    onEnter: els => gsap.to(els, { opacity:1, x:0, duration:0.8, ease:'power3.out', stagger:0.1 }),
+    start: 'top 85%',
+  });
+
   // Navbar scroll shrink
   window.addEventListener('scroll', () => {
     const nav = document.getElementById('navbar');
