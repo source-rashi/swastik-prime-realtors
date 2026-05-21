@@ -1,79 +1,53 @@
-/**
- * MAGNETIC CUSTOM CURSOR
- * Gold dot + lagging ring + magnetic pull on interactive elements
- */
-import gsap from 'gsap';
+import { gsap } from 'gsap';
 
 export function initCursor() {
   const dot = document.getElementById('cursor-dot');
   const ring = document.getElementById('cursor-ring');
   const label = document.getElementById('cursor-label');
 
-  let mouseX = 0, mouseY = 0;
-  let ringX = 0, ringY = 0;
-  let isHovering = false;
+  let mx = 0, my = 0, rx = 0, ry = 0;
 
-  document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    dot.style.transform = `translate(${mouseX - 5}px, ${mouseY - 5}px)`;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px';
+    dot.style.top = my + 'px';
   });
 
-  function animateRing() {
-    ringX += (mouseX - ringX) * 0.1;
-    ringY += (mouseY - ringY) * 0.1;
-    ring.style.transform = `translate(${ringX - 20}px, ${ringY - 20}px)`;
-    requestAnimationFrame(animateRing);
-  }
-  animateRing();
+  (function loop() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    label.style.left = rx + 'px';
+    label.style.top = (ry + 28) + 'px';
+    requestAnimationFrame(loop);
+  })();
 
-  // Magnetic hover on buttons and links
   document.querySelectorAll('button, a, [data-cursor]').forEach(el => {
     el.addEventListener('mouseenter', () => {
-      const type = el.dataset.cursor || 'hover';
-      isHovering = true;
-
-      ring.style.width = '56px';
-      ring.style.height = '56px';
-      ring.style.borderColor = 'rgba(201,168,76,0.9)';
-      ring.style.background = 'rgba(201,168,76,0.08)';
+      const type = el.dataset.cursor;
+      ring.style.width = '52px';
+      ring.style.height = '52px';
+      ring.style.borderColor = 'rgba(45,91,90,0.7)';
+      ring.style.background = 'rgba(45,91,90,0.06)';
       dot.style.opacity = '0';
-
-      if (type === 'view') {
-        label.textContent = 'VIEW';
-        label.style.opacity = '1';
-      } else if (type === 'drag') {
-        label.textContent = 'DRAG';
-        label.style.opacity = '1';
-      } else if (type === 'play') {
-        label.textContent = 'PLAY';
-        label.style.opacity = '1';
-      }
+      if (type) { label.textContent = type.toUpperCase(); label.style.opacity = '1'; }
     });
-
     el.addEventListener('mouseleave', () => {
-      isHovering = false;
-      ring.style.width = '40px';
-      ring.style.height = '40px';
-      ring.style.borderColor = 'rgba(201,168,76,0.5)';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+      ring.style.borderColor = 'rgba(45,91,90,0.4)';
       ring.style.background = 'transparent';
       dot.style.opacity = '1';
       label.style.opacity = '0';
     });
-
-    // Magnetic pull effect
-    el.addEventListener('mousemove', (e) => {
-      if (!isHovering) return;
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (e.clientX - cx) * 0.25;
-      const dy = (e.clientY - cy) * 0.25;
-      gsap.to(el, { x: dx, y: dy, duration: 0.4, ease: 'power2.out' });
+    // Magnetic pull
+    el.addEventListener('mousemove', e => {
+      const r = el.getBoundingClientRect();
+      gsap.to(el, { x: (e.clientX - r.left - r.width/2) * 0.2, y: (e.clientY - r.top - r.height/2) * 0.2, duration: 0.35, ease: 'power2.out' });
     });
-
     el.addEventListener('mouseleave', () => {
-      gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.5)' });
+      gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,0.5)' });
     });
   });
 }

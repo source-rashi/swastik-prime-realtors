@@ -1,41 +1,27 @@
-/**
- * CINEMATIC LOADER
- * Full-screen preloader with animated counter and reveal
- */
-import gsap from 'gsap';
+import { gsap } from 'gsap';
 
 export function initLoader() {
-  const loaderEl = document.getElementById('loader');
-  const counterEl = document.getElementById('loader-counter');
-  const progressEl = document.getElementById('loader-progress');
-  const logoEl = document.getElementById('loader-logo');
+  const loader = document.getElementById('loader');
+  const line = document.getElementById('loader-line');
+  const pct = document.getElementById('loader-pct');
+  let p = 0;
 
-  let progress = 0;
+  const tick = setInterval(() => {
+    p += Math.random() * 14;
+    if (p >= 100) { p = 100; clearInterval(tick); setTimeout(reveal, 300); }
+    line.style.width = p + '%';
+    pct.textContent = Math.floor(p).toString().padStart(2,'0') + '%';
+  }, 70);
 
-  // Simulate asset loading progress
-  const interval = setInterval(() => {
-    progress += Math.random() * 12;
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-      setTimeout(revealSite, 400);
-    }
-    counterEl.textContent = Math.floor(progress).toString().padStart(2, '0');
-    progressEl.style.transform = `scaleX(${progress / 100})`;
-  }, 80);
-
-  function revealSite() {
-    const tl = gsap.timeline();
-    tl.to(logoEl, { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' })
-      .to('#loader-progress-wrap', { opacity: 0, duration: 0.3 }, '<')
-      .to(loaderEl, {
-        clipPath: 'inset(0 0 100% 0)',
-        duration: 1.2,
-        ease: 'power4.inOut',
-      })
-      .set(loaderEl, { display: 'none' })
-      .call(() => {
-        document.dispatchEvent(new CustomEvent('loaderComplete'));
-      });
+  function reveal() {
+    gsap.to(loader, {
+      yPercent: -100,
+      duration: 1,
+      ease: 'power4.inOut',
+      onComplete: () => {
+        loader.style.display = 'none';
+        document.dispatchEvent(new CustomEvent('loaderDone'));
+      }
+    });
   }
 }

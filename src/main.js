@@ -3,74 +3,59 @@ import { initLoader } from './utils/loader.js';
 import { initCursor } from './utils/cursor.js';
 import { initLenis } from './utils/lenis.js';
 
-// Import GSAP config for global batch reveals
-import './animations/gsap.config.js';
-
-// Initialize loader immediately
 initLoader();
 
-// After loader completes, boot everything else
-document.addEventListener('loaderComplete', async () => {
-  const { initScene } = await import('./three/scene.js');
-  const { initHero } = await import('./sections/hero.js');
-  const { initServices } = await import('./sections/services.js');
-  const { initAIReport } = await import('./sections/ai-report.js');
-  const { initWhyUs } = await import('./sections/why-us.js');
-  const { initTestimonials } = await import('./sections/testimonials.js');
-  const { initContact } = await import('./sections/contact.js');
-  const { initAudio } = await import('./audio/ambient.js');
+document.addEventListener('loaderDone', async () => {
+  const { gsap } = await import('gsap');
   const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+  gsap.registerPlugin(ScrollTrigger);
+
+  const { initHero }         = await import('./sections/hero.js');
+  const { initServices }     = await import('./sections/services.js');
+  const { initAIReport }     = await import('./sections/ai-report.js');
+  const { initWhyUs }        = await import('./sections/why-us.js');
+  const { initTestimonials } = await import('./sections/testimonials.js');
+  const { initContact }      = await import('./sections/contact.js');
 
   initCursor();
   const lenis = initLenis();
 
-  initScene();
-  initHero();
+  await initHero();
   initServices();
   initAIReport();
   initWhyUs();
   initTestimonials();
   initContact();
 
-  // Audio — user must interact first
-  document.addEventListener('click', () => initAudio(), { once: true });
-
-  // Navbar scroll effect
+  // Navbar scroll shrink
   window.addEventListener('scroll', () => {
     const nav = document.getElementById('navbar');
     if (window.scrollY > 60) {
-      nav.style.background = 'rgba(5,8,16,0.85)';
-      nav.style.backdropFilter = 'blur(24px)';
-      nav.style.padding = '16px 60px';
-      nav.style.borderBottom = '1px solid rgba(201,168,76,0.1)';
+      nav.style.padding = '18px 64px';
+      nav.style.background = 'rgba(247,245,241,0.92)';
+      nav.style.backdropFilter = 'blur(16px)';
+      nav.style.borderBottomColor = 'var(--cream-mid)';
     } else {
+      nav.style.padding = '28px 64px';
       nav.style.background = 'transparent';
       nav.style.backdropFilter = 'none';
-      nav.style.padding = '24px 60px';
-      nav.style.borderBottom = 'none';
+      nav.style.borderBottomColor = 'transparent';
     }
   });
 
-  // Nav link active states on scroll
-  const sections = ['hero','services','ai-report','why-us','testimonials','contact'];
-  sections.forEach(id => {
-    ScrollTrigger.create({
-      trigger: `#${id}`,
-      start: 'top 50%',
-      end: 'bottom 50%',
-      onToggle: (self) => {
-        if (self.isActive) {
-          document.querySelectorAll('nav a').forEach(l => l.style.color = 'rgba(245,245,240,0.5)');
-          const active = document.querySelector(`[href="#${id}"]`);
-          if (active) active.style.color = 'var(--gold)';
-        }
-      },
-    });
+  // Nav link hover
+  document.querySelectorAll('.nav-link').forEach(a => {
+    a.addEventListener('mouseenter', () => a.style.color = 'var(--teal)');
+    a.addEventListener('mouseleave', () => a.style.color = 'var(--charcoal-60)');
   });
 
-  // Hover glow on nav links
-  document.querySelectorAll('nav a').forEach(a => {
-    a.addEventListener('mouseenter', () => a.style.color = 'var(--gold)');
-    a.addEventListener('mouseleave', () => a.style.color = 'rgba(245,245,240,0.5)');
-  });
+  // openModal global
+  window.openModal = function() {
+    document.getElementById('modal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+  window.closeModal = function() {
+    document.getElementById('modal').style.display = 'none';
+    document.body.style.overflow = '';
+  };
 });
