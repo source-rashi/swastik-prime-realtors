@@ -1036,9 +1036,8 @@ function initHero(){
 
   const tl=gsap.timeline({
     scrollTrigger:{
-      trigger:'#hero',start:'top top',end:'bottom bottom',scrub:1.4,
+      trigger:'#hero',start:'top top',end:'bottom bottom',scrub:1.0,
       onUpdate(self){
-        switchAct(self.progress);
         document.getElementById('pbar').style.width=(self.progress*100)+'%';
       }
     }
@@ -1086,11 +1085,6 @@ function showAct(idx){
   else{gsap.to('#scue',{opacity:0,duration:.35});}
 }
 
-function switchAct(p){
-  const na=p<.28?0:p<.60?1:2;
-  showAct(na);
-}
-
 function tickHero(){
   if(!CAM)return;
   CAM.position.x+=(CT.x+HMX*1.8-CAM.position.x)*.055;
@@ -1099,6 +1093,10 @@ function tickHero(){
   curLX+=(CT.lx-curLX)*.055;
   curLY+=(CT.ly-curLY)*.055;
   CAM.lookAt(curLX,curLY,0);
+
+  // Switch acts based on actual camera position in 3D space
+  const na = CT.x < 3 ? 0 : CT.x < 9.5 ? 1 : 2;
+  showAct(na);
 }
 
 /* ── MODAL ───────────────────────────────────────────── */
