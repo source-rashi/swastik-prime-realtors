@@ -3,312 +3,449 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="description" content="Swastik Prime Realtors — AI-powered real estate advisory in Central India"/>
+<meta name="description" content="Swastik Prime Realtors — AI-powered real estate advisory. Residential, Commercial, Pre-Leased, Industrial in Central India."/>
+<meta name="keywords" content="Residential Indore, Pre-Leased Bhopal, Commercial real estate Central India, property advisory Jabalpur"/>
 <title>Swastik Prime Realtors — Central India's Trusted Property Advisor</title>
 
+<!-- FONTS -->
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 
+<!-- THREE.JS + GSAP — CDN, no race conditions -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
 <style>
-/* ── RESET ── */
+/* ═══════════════════════════════════════════════════════
+   RESET + ROOT
+═══════════════════════════════════════════════════════ */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;scroll-behavior:auto}
-body{background:#06141A;color:#EDE4D6;font-family:'Outfit',sans-serif;overflow-x:hidden;cursor:none}
-a,button{cursor:none;text-decoration:none}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:auto}
+body{
+  background:#0F1C2E;
+  color:#F0F4F8;
+  font-family:'Inter',system-ui,sans-serif;
+  overflow-x:hidden;
+  cursor:none;
+}
+a{text-decoration:none;cursor:none}
+button{cursor:none}
 img,svg{display:block}
-::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:#06141A}::-webkit-scrollbar-thumb{background:rgba(200,169,110,.2);border-radius:2px}
-::selection{background:rgba(200,169,110,.2);color:#C8A96E}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:#0F1C2E}
+::-webkit-scrollbar-thumb{background:rgba(212,168,67,.25);border-radius:2px}
+::selection{background:rgba(212,168,67,.2);color:#D4A843}
 
-/* ── CSS VARS ── */
+/* ═══════════════════════════════════════════════════════
+   CSS VARIABLES
+═══════════════════════════════════════════════════════ */
 :root{
-  --bg:#06141A;--bg2:#0D2228;--bg3:#122A32;
-  --gold:#C8A96E;--gold-d:rgba(200,169,110,.12);--gold-b:rgba(200,169,110,.18);
-  --terra:#B85530;--terra-h:#CC6640;
-  --cream:#EDE4D6;--c60:rgba(237,228,214,.6);--c30:rgba(237,228,214,.3);
+  --navy:    #0F1C2E;
+  --navy-2:  #162336;
+  --navy-3:  #1C2D42;
+  --steel:   #2C3E55;
+  --grey:    #8FA3B8;
+  --grey-d:  rgba(143,163,184,.15);
+  --gold:    #D4A843;
+  --gold-d:  rgba(212,168,67,.12);
+  --gold-b:  rgba(212,168,67,.20);
+  --orange:  #E07B3A;
+  --orange-h:#F08C4A;
+  --white:   #F0F4F8;
+  --w60:     rgba(240,244,248,.60);
+  --w30:     rgba(240,244,248,.30);
   --fd:'Cormorant Garamond',Georgia,serif;
-  --fb:'Outfit',sans-serif;
+  --fb:'Inter',system-ui,sans-serif;
   --fm:'DM Mono',monospace;
 }
 
-/* ── NOISE ── */
-#noise{position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.028;
-  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") repeat;background-size:128px}
+/* ═══════════════════════════════════════════════════════
+   NOISE GRAIN
+═══════════════════════════════════════════════════════ */
+#noise{
+  position:fixed;inset:0;z-index:4;pointer-events:none;opacity:.025;
+  background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") repeat;
+  background-size:128px 128px;
+}
 
-/* ── PROGRESS BAR ── */
-#pbar{position:fixed;top:0;left:0;height:2px;width:0%;background:linear-gradient(90deg,var(--gold),var(--terra));z-index:999;transition:width .1s linear}
+/* ═══════════════════════════════════════════════════════
+   SCROLL PROGRESS BAR
+═══════════════════════════════════════════════════════ */
+#pbar{
+  position:fixed;top:0;left:0;height:2px;width:0%;
+  background:linear-gradient(90deg,var(--gold),var(--orange));
+  z-index:999;transition:width .1s linear;
+}
 
-/* ── LOADER ── */
-#loader{position:fixed;inset:0;background:var(--bg);z-index:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px}
-.ll{font-family:var(--fd);font-size:28px;font-weight:500;color:var(--cream);letter-spacing:1px}
-.ll em{color:var(--gold);font-style:normal}
-.lbw{width:200px;height:1px;background:rgba(200,169,110,.15);overflow:hidden}
-#lb{height:100%;width:0%;background:var(--gold)}
-#lpct{font-family:var(--fm);font-size:11px;letter-spacing:3px;color:var(--c30)}
+/* ═══════════════════════════════════════════════════════
+   LOADER
+═══════════════════════════════════════════════════════ */
+#loader{
+  position:fixed;inset:0;background:var(--navy);z-index:600;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+}
+.l-logo{
+  font-family:var(--fd);font-size:30px;font-weight:500;
+  color:var(--white);letter-spacing:1px;
+}
+.l-logo em{color:var(--gold);font-style:normal}
+.l-bar-wrap{width:220px;height:1px;background:rgba(212,168,67,.18);overflow:hidden}
+#l-bar{height:100%;width:0%;background:var(--gold)}
+#l-pct{font-family:var(--fm);font-size:11px;letter-spacing:3px;color:var(--w30)}
 
-/* ── CURSOR ── */
-#cdot{position:fixed;width:8px;height:8px;background:var(--gold);border-radius:50%;pointer-events:none;z-index:9999;top:0;left:0;transform:translate(-50%,-50%)}
-#cring{position:fixed;width:38px;height:38px;border:1px solid rgba(200,169,110,.45);border-radius:50%;pointer-events:none;z-index:9998;top:0;left:0;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s,background .3s}
+/* ═══════════════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════════════ */
+#cdot{
+  position:fixed;width:8px;height:8px;background:var(--gold);
+  border-radius:50%;pointer-events:none;z-index:9999;
+  top:0;left:0;transform:translate(-50%,-50%);
+}
+#cring{
+  position:fixed;width:38px;height:38px;
+  border:1px solid rgba(212,168,67,.45);border-radius:50%;
+  pointer-events:none;z-index:9998;
+  top:0;left:0;transform:translate(-50%,-50%);
+  transition:width .3s,height .3s,border-color .3s,background .3s;
+}
 
-/* ── NAV ── */
-#nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:26px 64px;display:flex;align-items:center;justify-content:space-between;transition:all .4s ease}
-#nav.solid{padding:16px 64px;background:rgba(6,20,26,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--gold-b)}
-.nlogo{font-family:var(--fd);font-size:20px;font-weight:500;color:var(--cream);letter-spacing:.5px}
-.nlogo em{color:var(--gold);font-style:normal}
-.nlinks{display:flex;gap:36px;list-style:none}
-.nlinks a{font-family:var(--fm);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--c30);transition:color .3s}
-.nlinks a:hover{color:var(--gold)}
-.ncta{font-family:var(--fm);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;background:var(--terra);color:var(--cream);border:none;padding:14px 28px;clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:background .3s}
-.ncta:hover{background:var(--terra-h)}
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+#nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:24px 64px;
+  display:flex;align-items:center;justify-content:space-between;
+  transition:all .4s ease;
+}
+#nav.solid{
+  padding:14px 64px;
+  background:rgba(15,28,46,.92);
+  backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--gold-b);
+}
+.n-logo{
+  font-family:var(--fd);font-size:21px;font-weight:500;
+  color:var(--white);letter-spacing:.5px;
+}
+.n-logo em{color:var(--gold);font-style:normal}
+.n-links{display:flex;gap:32px;list-style:none}
+.n-links a{
+  font-family:var(--fm);font-size:10px;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--w30);
+  transition:color .3s ease;
+}
+.n-links a:hover{color:var(--gold)}
+.n-cta{
+  font-family:var(--fm);font-size:10px;letter-spacing:2.5px;
+  text-transform:uppercase;
+  background:var(--orange);color:var(--white);
+  border:none;padding:13px 26px;
+  clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);
+  transition:background .3s;
+  position:relative;overflow:hidden;
+}
+.n-cta::after{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,.13);
+  transform:translateX(-110%) skewX(-15deg);
+  transition:transform .5s;
+}
+.n-cta:hover::after{transform:translateX(110%) skewX(-15deg)}
+.n-cta:hover{background:var(--orange-h)}
 
-/* ── HERO ── */
+/* ═══════════════════════════════════════════════════════
+   HERO SECTION
+═══════════════════════════════════════════════════════ */
 #hero{position:relative}
 #pin-spacer{height:400vh}
 #sticky{position:sticky;top:0;height:100vh;overflow:hidden}
 #three-canvas{position:absolute;inset:0;z-index:0;display:block;width:100%!important;height:100%!important}
-
-/* Left vignette for text readability */
-#sticky::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(100deg,rgba(6,20,26,.85) 0%,rgba(6,20,26,.55) 40%,transparent 65%)}
+#sticky::after{
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(105deg,rgba(15,28,46,.90) 0%,rgba(15,28,46,.65) 42%,transparent 68%);
+}
 
 /* ── ACT PANELS ── */
-.act{position:absolute;left:0;bottom:140px;max-width:600px;z-index:20;
-  display:flex;flex-direction:column;gap:18px;
-  padding:44px 56px 48px 64px}
-.act .ov{font-family:var(--fm);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:14px}
-.act .ov::before{content:'';width:28px;height:1px;background:var(--gold);flex-shrink:0}
-.act h1{font-family:var(--fd);font-size:clamp(58px,7vw,100px);font-weight:500;line-height:1.02;letter-spacing:-.025em;color:var(--cream)}
-.act h2{font-family:var(--fd);font-size:clamp(44px,5.2vw,78px);font-weight:500;line-height:1.07;letter-spacing:-.022em;color:var(--cream)}
-.act p{font-size:16px;font-weight:300;color:var(--c60);line-height:1.85;max-width:420px}
+.act{
+  position:absolute;left:0;bottom:148px;
+  max-width:620px;z-index:20;
+  display:none;
+  flex-direction:column;gap:18px;
+  padding:40px 52px 44px 64px;
+}
+.act.visible{display:flex}
+.act-ov{
+  font-family:var(--fm);font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;color:var(--gold);
+  display:flex;align-items:center;gap:14px;
+}
+.act-ov::before{content:'';width:28px;height:1px;background:var(--gold);flex-shrink:0}
+.act h1{font-family:var(--fd);font-size:clamp(56px,7vw,98px);font-weight:500;line-height:1.02;letter-spacing:-.025em;color:var(--white)}
+.act h2{font-family:var(--fd);font-size:clamp(42px,5.2vw,76px);font-weight:500;line-height:1.07;letter-spacing:-.022em;color:var(--white)}
+.act p{font-size:16px;font-weight:300;color:var(--w60);line-height:1.85;max-width:430px}
 .act em{font-style:italic;color:var(--gold)}
-.ctarow{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:4px}
-.btn-t{font-family:var(--fm);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;background:var(--terra);color:var(--cream);border:none;padding:16px 38px;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:background .3s,transform .25s}
-.btn-t:hover{background:var(--terra-h);transform:translateY(-2px)}
-.btn-o{font-family:var(--fm);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;background:transparent;color:var(--c60);border:1px solid rgba(237,228,214,.2);padding:15px 38px;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:all .3s}
-.btn-o:hover{border-color:var(--gold);color:var(--gold)}
+.cta-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:4px}
+
+/* ── BUTTONS ── */
+.btn{
+  font-family:var(--fm);font-size:10px;letter-spacing:2.5px;
+  text-transform:uppercase;border:none;padding:16px 38px;
+  display:inline-flex;align-items:center;gap:10px;
+  clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);transform:translateX(-110%) skewX(-15deg);transition:transform .5s}
+.btn:hover::after{transform:translateX(110%) skewX(-15deg)}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:scale(.97)}
+.btn.orange{background:var(--orange);color:var(--white)}
+.btn.orange:hover{background:var(--orange-h)}
+.btn.gold{background:var(--gold);color:var(--navy)}
+.btn.outline{background:transparent;color:var(--w60);border:1px solid rgba(240,244,248,.2)}
+.btn.outline:hover{border-color:var(--gold);color:var(--gold)}
 
 /* ── ACT DOTS ── */
 #adots{position:absolute;right:48px;top:50%;transform:translateY(-50%);z-index:30;display:flex;flex-direction:column;align-items:center;gap:10px}
-.adot{width:5px;height:5px;border-radius:50%;background:rgba(200,169,110,.22);border:none;padding:0;transition:background .4s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.adot{width:5px;height:5px;border-radius:50%;background:rgba(212,168,67,.22);border:none;padding:0;transition:background .4s,transform .4s cubic-bezier(.34,1.56,.64,1)}
 .adot.on{background:var(--gold);transform:scale(1.9)}
 
 /* ── PROPERTY CARD ── */
-#pcard{position:absolute;right:64px;bottom:148px;width:272px;z-index:30;
-  background:rgba(8,26,32,.88);backdrop-filter:blur(32px);
-  border:1px solid rgba(200,169,110,.22);padding:28px;pointer-events:none}
-#pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--terra) 60%,transparent)}
-.pbadge{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;background:var(--gold);color:var(--bg);padding:4px 10px;display:inline-block;margin-bottom:18px}
-.pprice{font-family:var(--fd);font-size:40px;font-weight:500;color:var(--cream);line-height:1;margin-bottom:6px}
-.pprice small{font-size:20px;color:var(--gold)}
-.ploc{font-size:12px;color:var(--c30);margin-bottom:18px;letter-spacing:.3px}
-.ptags{display:flex;gap:8px;margin-bottom:18px}
-.ptag{font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--c30);border:1px solid rgba(237,228,214,.1);padding:5px 10px}
-.proi{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--gold-b)}
-.proi-l{font-family:var(--fm);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--c30)}
-.proi-v{font-family:var(--fd);font-size:30px;font-weight:500;color:var(--gold)}
+#pcard{
+  position:absolute;right:64px;bottom:150px;width:275px;z-index:30;
+  background:rgba(15,28,46,.88);backdrop-filter:blur(32px);
+  border:1px solid var(--gold-b);padding:28px;display:none;
+}
+#pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--orange) 60%,transparent)}
+.pc-badge{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;background:var(--gold);color:var(--navy);padding:4px 10px;display:inline-block;margin-bottom:18px}
+.pc-price{font-family:var(--fd);font-size:40px;font-weight:500;color:var(--white);line-height:1;margin-bottom:6px}
+.pc-price small{font-size:20px;color:var(--gold)}
+.pc-loc{font-size:12px;color:var(--w30);margin-bottom:18px}
+.pc-tags{display:flex;gap:8px;margin-bottom:18px}
+.pc-tag{font-family:var(--fm);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--w30);border:1px solid rgba(240,244,248,.1);padding:5px 10px}
+.pc-roi{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--gold-b)}
+.pc-roi-l{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.pc-roi-v{font-family:var(--fd);font-size:30px;font-weight:500;color:var(--gold)}
 
 /* ── STATS BAR ── */
-#sbar{position:absolute;bottom:0;left:0;right:0;z-index:25;
-  display:grid;grid-template-columns:repeat(4,1fr);
-  background:rgba(6,20,26,.92);backdrop-filter:blur(24px);
-  border-top:1px solid rgba(200,169,110,.18)}
-.si{padding:22px 44px;border-right:1px solid rgba(200,169,110,.1)}
+#sbar{position:absolute;bottom:0;left:0;right:0;z-index:25;display:grid;grid-template-columns:repeat(4,1fr);background:rgba(15,28,46,.92);backdrop-filter:blur(24px);border-top:1px solid var(--gold-b);opacity:0}
+.si{padding:20px 40px;border-right:1px solid rgba(212,168,67,.1)}
 .si:last-child{border-right:none}
-.sn{font-family:var(--fd);font-size:34px;font-weight:500;color:var(--gold);line-height:1;margin-bottom:6px}
-.sl{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(237,228,214,.35)}
+.si-num{font-family:var(--fd);font-size:34px;font-weight:500;color:var(--gold);line-height:1;margin-bottom:6px}
+.si-lbl{font-family:var(--fm);font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--w30)}
 
 /* ── SCROLL CUE ── */
-#scue{position:absolute;bottom:88px;right:52px;z-index:25;display:flex;flex-direction:column;align-items:center;gap:9px}
-#scue span{font-family:var(--fm);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,169,110,.35);writing-mode:vertical-rl}
-#sline{width:1px;height:50px;background:linear-gradient(to bottom,rgba(200,169,110,.5),transparent);animation:sp 2s ease-in-out infinite}
-@keyframes sp{0%,100%{opacity:.35;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.12)}}
+#scue{position:absolute;bottom:90px;right:52px;z-index:25;display:flex;flex-direction:column;align-items:center;gap:9px;opacity:0}
+#scue span{font-family:var(--fm);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(212,168,67,.38);writing-mode:vertical-rl}
+#sline{width:1px;height:50px;background:linear-gradient(to bottom,rgba(212,168,67,.5),transparent);animation:sc 2s ease-in-out infinite}
+@keyframes sc{0%,100%{opacity:.35;transform:scaleY(1)}50%{opacity:1;transform:scaleY(1.12)}}
 
-/* ── SECTIONS ── */
-.section{position:relative;z-index:10;padding:160px 0;background:var(--bg)}
-.section.alt{background:var(--bg2)}
-.section.teal{background:var(--bg3)}
+/* ═══════════════════════════════════════════════════════
+   SECTIONS
+═══════════════════════════════════════════════════════ */
+.section{position:relative;z-index:10;padding:140px 0}
+.section.alt{background:var(--navy-2)}
+.section.dark{background:var(--navy-3)}
 .container{max-width:1440px;margin:0 auto;padding:0 64px}
-.ov2{font-family:var(--fm);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:14px;margin-bottom:18px}
-.ov2::before{content:'';width:28px;height:1px;background:var(--gold);flex-shrink:0}
-.h-d{font-family:var(--fd);font-size:clamp(42px,4.8vw,74px);font-weight:500;line-height:1.07;letter-spacing:-.022em;color:var(--cream)}
-.h-d em{font-style:italic;color:var(--gold)}
-.bod{font-size:16px;font-weight:300;color:var(--c60);line-height:1.85}
-
-/* ── BUTTONS (global) ── */
-.btn{font-family:var(--fm);font-size:10px;letter-spacing:2.5px;text-transform:uppercase;border:none;padding:16px 38px;display:inline-flex;align-items:center;gap:10px;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);transition:all .3s;position:relative;overflow:hidden}
-.btn::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);transform:translateX(-110%) skewX(-15deg);transition:transform .5s}
-.btn:hover::after{transform:translateX(110%) skewX(-15deg)}
-.btn.terra{background:var(--terra);color:var(--cream)}
-.btn.terra:hover{background:var(--terra-h);transform:translateY(-2px)}
-.btn.gold{background:var(--gold);color:var(--bg)}
-.btn.outline{background:transparent;color:var(--c60);border:1px solid rgba(237,228,214,.2)}
-.btn.outline:hover{border-color:var(--gold);color:var(--gold)}
-
-/* ── SERVICES ── */
-.srow{display:grid;grid-template-columns:54px 1fr 2fr 160px 44px;align-items:center;gap:32px;padding:24px 0;border-top:1px solid rgba(200,169,110,.12);transition:background .3s,padding-left .3s;position:relative}
-.srow:last-child{border-bottom:1px solid rgba(200,169,110,.12)}
-.srow:hover{background:var(--bg2);padding-left:16px}
-.srow:hover .sr-t{color:var(--gold)}
-.srow:hover .sr-arr{transform:translateX(6px)}
-.srow:hover .sr-desc{opacity:1}
-.sr-n{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--c30)}
-.sr-t{font-family:var(--fd);font-size:26px;font-weight:500;color:var(--cream);transition:color .3s}
-.sr-s{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--c30);margin-top:3px}
-.sr-desc{font-size:13px;color:var(--c60);line-height:1.75;opacity:0;transition:opacity .35s}
-.sr-stat{font-family:var(--fm);font-size:10px;color:var(--gold);letter-spacing:1px}
-.sr-arr{font-size:20px;color:var(--gold);transition:transform .35s cubic-bezier(.34,1.56,.64,1);text-align:right}
-
-/* ── AI REPORT ── */
-.ai-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
-.ai-stick{position:sticky;top:120px}
-.ai-card{background:var(--bg2);border:1px solid var(--gold-b);padding:44px;position:relative}
-.ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--terra) 60%,transparent)}
-.fld{display:flex;flex-direction:column;gap:9px;margin-bottom:26px}
-.flbl{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--c30)}
-.finp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(200,169,110,.18);color:var(--cream);font-family:var(--fb);font-size:15px;padding:11px 0;outline:none;transition:border-color .3s}
-.finp::placeholder{color:var(--c30)}
-.finp:focus{border-bottom-color:var(--gold)}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.pill{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 15px;border:1px solid rgba(200,169,110,.18);background:transparent;color:var(--c30);transition:all .25s;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);cursor:none}
-.pill.on,.pill:hover{border-color:var(--gold);background:var(--gold-d);color:var(--gold)}
-.ptog{display:flex;background:var(--bg);border:1px solid rgba(200,169,110,.18);margin-top:8px;overflow:hidden}
-.ptbtn{flex:1;font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:12px;border:none;background:transparent;color:var(--c30);transition:all .3s;cursor:none}
-.ptbtn.on{background:var(--gold);color:var(--bg)}
-input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:linear-gradient(90deg,var(--gold) 50%,rgba(200,169,110,.18) 50%);border:none;outline:none;cursor:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid var(--bg)}
-.rrow{display:flex;justify-content:space-between;margin-bottom:10px}
-.rv{font-family:var(--fd);font-size:22px;color:var(--gold)}
-.ai-res{margin-top:28px;padding-top:28px;border-top:1px solid rgba(200,169,110,.15);opacity:0;transform:translateY(16px);transition:all .55s cubic-bezier(.34,1.56,.64,1)}
-.ai-res.show{opacity:1;transform:translateY(0)}
-.mr{display:flex;justify-content:space-between;align-items:center;padding:13px 15px;border:1px solid rgba(200,169,110,.12);border-left:2px solid var(--gold);margin-bottom:7px;transition:background .3s}
-.mr:hover{background:var(--bg3)}
-.mn{font-size:13px;font-weight:500;color:var(--cream);margin-bottom:3px}
-.mt{font-family:var(--fm);font-size:9px;color:var(--c30);letter-spacing:1px}
-.mp{font-family:var(--fd);font-size:20px;color:var(--gold)}
-.mroi{font-family:var(--fm);font-size:9px;color:#4CAF7A;letter-spacing:1px}
-
-/* ── WHY US ── */
-.wgrid{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
-.wscards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.wcard{background:var(--bg2);border:1px solid var(--gold-b);padding:34px 28px;position:relative;overflow:hidden;transition:border-color .3s,transform .35s cubic-bezier(.34,1.56,.64,1)}
-.wcard::before{content:'';position:absolute;top:0;left:0;width:0;height:2px;background:var(--gold);transition:width .5s cubic-bezier(.34,1.56,.64,1)}
-.wcard:hover{border-color:rgba(200,169,110,.5);transform:translateY(-4px)}
-.wcard:hover::before{width:100%}
-.wbig{font-family:var(--fd);font-size:52px;font-weight:500;color:var(--gold);line-height:1;margin-bottom:10px}
-.wlbl{font-family:var(--fd);font-size:16px;font-weight:500;color:var(--cream);margin-bottom:5px}
-.wsub{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--c30)}
-.flist{display:flex;flex-direction:column;gap:26px;margin-top:44px}
-.fi{display:flex;gap:16px;align-items:flex-start}
-.ficon{width:44px;height:44px;border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:18px;flex-shrink:0;transition:all .3s}
-.fi:hover .ficon{background:var(--gold-d);border-color:var(--gold)}
-.ftit{font-family:var(--fd);font-size:20px;font-weight:500;color:var(--cream);margin-bottom:5px}
-.fdesc{font-size:14px;color:var(--c60);line-height:1.75}
-
-/* ── TESTIMONIALS ── */
-.tlayout{display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:start}
-.tleft{position:sticky;top:120px}
-.tleft h2{color:var(--cream);margin:14px 0 18px}
-.tleft p{color:var(--c60);font-size:14px;max-width:240px;line-height:1.85}
-.tdots{display:flex;gap:10px;margin-top:36px}
-.tdot{height:7px;border-radius:4px;background:rgba(200,169,110,.22);border:none;transition:all .4s cubic-bezier(.34,1.56,.64,1);width:7px;cursor:none}
-.tdot.on{background:var(--gold);width:26px}
-.ttrack{overflow:hidden}
-.tslides{display:flex;transition:transform .72s cubic-bezier(.4,0,.2,1)}
-.tslide{min-width:100%;padding:2px}
-.tcard{background:rgba(18,42,50,.65);border:1px solid rgba(200,169,110,.12);padding:48px;position:relative}
-.tcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(200,169,110,.4),transparent)}
-.qm{font-family:var(--fd);font-size:90px;line-height:.5;color:rgba(200,169,110,.1);font-weight:700;margin-bottom:26px;display:block}
-.qt{font-family:var(--fd);font-size:21px;font-style:italic;font-weight:400;color:var(--cream);line-height:1.65;margin-bottom:36px}
-.tmeta{display:flex;align-items:center;gap:14px}
-.tav{width:44px;height:44px;border-radius:50%;background:var(--gold-d);border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:12px;color:var(--gold);flex-shrink:0}
-.tname{font-size:15px;font-weight:500;color:var(--cream);margin-bottom:2px}
-.trole{font-family:var(--fm);font-size:9px;letter-spacing:1px;color:var(--c30)}
-.tveri{margin-left:auto;font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);border:1px solid var(--gold-b);padding:5px 11px;text-transform:uppercase}
-
-/* ── CONTACT ── */
-.clayout{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
-.ccards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.cc{background:var(--bg2);border:1px solid var(--gold-b);padding:26px 22px;transition:border-color .3s,transform .35s cubic-bezier(.34,1.56,.64,1)}
-.cc:hover{border-color:rgba(200,169,110,.5);transform:translateY(-4px)}
-.ccv{font-family:var(--fd);font-size:18px;font-weight:500;color:var(--gold);margin:10px 0 4px}
-.ccs{font-size:12px;color:var(--c30)}
-
-/* ── FOOTER ── */
-#footer{background:#030E11;border-top:1px solid rgba(200,169,110,.1);padding:70px 64px 38px}
-.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:60px}
-.flogo{font-family:var(--fd);font-size:20px;font-weight:500;color:var(--cream)}
-.flogo em{color:var(--gold);font-style:normal}
-.fbrand p{font-size:13px;color:rgba(237,228,214,.35);line-height:1.85;max-width:255px;margin-top:14px}
-.fcol-h{font-family:var(--fm);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,169,110,.4);margin-bottom:18px}
-.fcol ul{list-style:none;display:flex;flex-direction:column;gap:12px}
-.fcol a{font-size:13px;color:rgba(237,228,214,.38);transition:color .3s}
-.fcol a:hover{color:var(--gold)}
-address{font-size:13px;color:rgba(237,228,214,.38);font-style:normal;line-height:1.9}
-address a{color:rgba(200,169,110,.6);transition:color .3s}
-address a:hover{color:var(--gold)}
-.fbot{border-top:1px solid rgba(200,169,110,.08);padding-top:22px;display:flex;justify-content:space-between;align-items:center;font-family:var(--fm);font-size:9px;letter-spacing:2px;color:rgba(237,228,214,.18);text-transform:uppercase}
-
-/* ── MODAL ── */
-#modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(6,20,26,.8);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px}
-.mcard{background:var(--bg2);border:1px solid var(--gold-b);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:48px;position:relative;animation:mIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
-.mcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--terra))}
-@keyframes mIn{from{opacity:0;transform:scale(.94) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.mcls{position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid var(--gold-b);background:transparent;color:var(--c30);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .3s;cursor:none}
-.mcls:hover{border-color:var(--gold);color:var(--gold)}
-.mtit{font-family:var(--fd);font-size:28px;font-weight:500;color:var(--cream);margin:10px 0 6px}
-.msub{font-size:13px;color:var(--c60);margin-bottom:28px}
-.mform{display:flex;flex-direction:column;gap:20px}
-.dz{border:1px dashed rgba(200,169,110,.2);padding:26px;text-align:center;transition:all .3s}
-.dz:hover,.dz.drag{border-color:var(--gold);background:var(--gold-d)}
-.dzl{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--c30);margin-top:9px}
-.mok{display:none;text-align:center;padding:52px 0}
-.okic{width:60px;height:60px;border-radius:50%;background:var(--gold-d);border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:okPop .5s cubic-bezier(.34,1.56,.64,1)}
-@keyframes okPop{from{transform:scale(0)}to{transform:scale(1)}}
-.oktit{font-family:var(--fd);font-size:26px;font-weight:500;color:var(--cream);margin-bottom:10px}
-.oksub{font-size:13px;color:var(--c60);line-height:1.85;max-width:270px;margin:0 auto 22px}
-
-/* ── WHATSAPP FAB ── */
-#wafab{position:fixed;bottom:34px;right:34px;z-index:50;width:50px;height:50px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(37,211,102,.35);transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
-#wafab:hover{transform:scale(1.1);box-shadow:0 6px 26px rgba(37,211,102,.5)}
-
-/* ── REVEAL ── */
+.ov{font-family:var(--fm);font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.ov::before{content:'';width:28px;height:1px;background:var(--gold);flex-shrink:0}
+.hd{font-family:var(--fd);font-size:clamp(40px,4.5vw,70px);font-weight:500;line-height:1.07;letter-spacing:-.022em;color:var(--white)}
+.hd em{font-style:italic;color:var(--gold)}
+.bd{font-size:16px;font-weight:300;color:var(--w60);line-height:1.85}
 .wu{opacity:0;transform:translateY(28px)}
 .wl{opacity:0;transform:translateX(-28px)}
 .wr{opacity:0;transform:translateX(28px)}
 .wf{opacity:0}
+
+/* ═══════════════════════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════════════════════ */
+.s-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:64px;gap:40px}
+.s-list{display:flex;flex-direction:column}
+.s-row{display:grid;grid-template-columns:52px 1fr 1.8fr 150px 40px;align-items:center;gap:32px;padding:22px 0;border-top:1px solid rgba(212,168,67,.1);transition:background .3s,padding-left .3s;position:relative}
+.s-row:last-child{border-bottom:1px solid rgba(212,168,67,.1)}
+.s-row:hover{background:rgba(22,35,54,.8);padding-left:18px}
+.s-row:hover .s-t{color:var(--gold)}
+.s-row:hover .s-arr{transform:translateX(6px)}
+.s-row:hover .s-desc{opacity:1}
+.s-n{font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--w30)}
+.s-t{font-family:var(--fd);font-size:26px;font-weight:500;color:var(--white);transition:color .3s}
+.s-sub{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-top:3px}
+.s-desc{font-size:13px;color:var(--w60);line-height:1.75;opacity:0;transition:opacity .35s}
+.s-stat{font-family:var(--fm);font-size:10px;color:var(--gold);letter-spacing:1px}
+.s-arr{font-size:20px;color:var(--gold);transition:transform .35s cubic-bezier(.34,1.56,.64,1);text-align:right}
+
+/* ═══════════════════════════════════════════════════════
+   AI REPORT
+═══════════════════════════════════════════════════════ */
+.ai-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.ai-stick{position:sticky;top:120px}
+.ai-feats{display:flex;flex-direction:column;gap:12px;margin-top:28px}
+.ai-feat{display:flex;gap:13px;align-items:flex-start;padding:16px 18px;background:var(--navy-3);border:1px solid var(--gold-b)}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+.ai-ft{font-size:14px;font-weight:500;color:var(--white);margin-bottom:3px}
+.ai-fd{font-size:13px;color:var(--w60)}
+.ai-card{background:var(--navy-2);border:1px solid var(--gold-b);padding:44px;position:relative}
+.ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--orange) 60%,transparent)}
+.ai-step{font-family:var(--fm);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:30px}
+.fld{display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.flbl{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.finp{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(212,168,67,.2);color:var(--white);font-family:var(--fb);font-size:15px;padding:11px 0;outline:none;transition:border-color .3s}
+.finp::placeholder{color:var(--w30)}
+.finp:focus{border-bottom-color:var(--gold)}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.pill{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;border:1px solid rgba(212,168,67,.18);background:transparent;color:var(--w30);transition:all .25s;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.pill.on,.pill:hover{border-color:var(--gold);background:var(--gold-d);color:var(--gold)}
+.ptog{display:flex;background:var(--navy);border:1px solid rgba(212,168,67,.18);margin-top:8px;overflow:hidden}
+.ptbtn{flex:1;font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:12px;border:none;background:transparent;color:var(--w30);transition:all .3s}
+.ptbtn.on{background:var(--gold);color:var(--navy)}
+.rrow{display:flex;justify-content:space-between;margin-bottom:10px}
+.rv{font-family:var(--fd);font-size:22px;color:var(--gold)}
+input[type=range]{width:100%;-webkit-appearance:none;height:2px;background:linear-gradient(90deg,var(--gold) 50%,rgba(212,168,67,.18) 50%);border:none;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid var(--navy)}
+.ai-res{margin-top:26px;padding-top:26px;border-top:1px solid rgba(212,168,67,.15);opacity:0;transform:translateY(16px);transition:all .55s cubic-bezier(.34,1.56,.64,1)}
+.ai-res.show{opacity:1;transform:translateY(0)}
+.res-hd{font-family:var(--fm);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:7px}
+.res-tit{font-family:var(--fd);font-size:23px;font-weight:500;color:var(--white);margin-bottom:16px}
+.res-txt{font-size:14px;color:var(--w60);line-height:1.85;border-left:2px solid var(--gold);padding-left:14px;margin-bottom:18px;min-height:58px}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:13px 14px;border:1px solid rgba(212,168,67,.12);border-left:2px solid var(--gold);margin-bottom:7px;transition:background .3s}
+.mrow:hover{background:var(--navy-3)}
+.m-n{font-size:13px;font-weight:500;color:var(--white);margin-bottom:3px}
+.m-t{font-family:var(--fm);font-size:9px;color:var(--w30);letter-spacing:1px}
+.m-p{font-family:var(--fd);font-size:20px;color:var(--gold)}
+.m-r{font-family:var(--fm);font-size:9px;color:#4CAF7A;letter-spacing:1px}
+.res-ctas{display:flex;gap:12px;margin-top:18px}
+.res-ctas .btn{flex:1;justify-content:center;font-size:9px}
+
+/* ═══════════════════════════════════════════════════════
+   WHY US
+═══════════════════════════════════════════════════════ */
+.w-grid{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+.w-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.w-card{background:var(--navy-2);border:1px solid var(--gold-b);padding:32px 26px;position:relative;overflow:hidden;transition:border-color .3s,transform .35s cubic-bezier(.34,1.56,.64,1)}
+.w-card::before{content:'';position:absolute;top:0;left:0;width:0;height:2px;background:var(--gold);transition:width .5s cubic-bezier(.34,1.56,.64,1)}
+.w-card:hover{border-color:rgba(212,168,67,.5);transform:translateY(-4px)}
+.w-card:hover::before{width:100%}
+.w-big{font-family:var(--fd);font-size:50px;font-weight:500;color:var(--gold);line-height:1;margin-bottom:10px}
+.w-lbl{font-family:var(--fd);font-size:16px;font-weight:500;color:var(--white);margin-bottom:5px}
+.w-sub{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30)}
+.f-list{display:flex;flex-direction:column;gap:24px;margin-top:40px}
+.f-item{display:flex;gap:16px;align-items:flex-start}
+.f-icon{width:44px;height:44px;border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:18px;flex-shrink:0;transition:all .3s}
+.f-item:hover .f-icon{background:var(--gold-d);border-color:var(--gold)}
+.f-tit{font-family:var(--fd);font-size:20px;font-weight:500;color:var(--white);margin-bottom:5px}
+.f-desc{font-size:14px;color:var(--w60);line-height:1.75}
+
+/* ═══════════════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════════════ */
+.t-layout{display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:start}
+.t-left{position:sticky;top:120px}
+.t-left h2{margin:14px 0 18px}
+.t-left p{color:var(--w60);font-size:14px;max-width:240px;line-height:1.85}
+.t-dots{display:flex;gap:10px;margin-top:36px}
+.tdot{height:7px;border-radius:4px;background:rgba(212,168,67,.22);border:none;transition:all .4s cubic-bezier(.34,1.56,.64,1);width:7px}
+.tdot.on{background:var(--gold);width:26px}
+.t-track{overflow:hidden}
+.t-slides{display:flex;transition:transform .72s cubic-bezier(.4,0,.2,1)}
+.t-slide{min-width:100%;padding:2px}
+.t-card{background:rgba(22,35,54,.7);border:1px solid rgba(212,168,67,.12);padding:48px;position:relative}
+.t-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.4),transparent)}
+.qm{font-family:var(--fd);font-size:88px;line-height:.5;color:rgba(212,168,67,.1);font-weight:700;margin-bottom:24px;display:block}
+.qt{font-family:var(--fd);font-size:21px;font-style:italic;font-weight:400;color:var(--white);line-height:1.65;margin-bottom:36px}
+.t-meta{display:flex;align-items:center;gap:14px}
+.t-av{width:44px;height:44px;border-radius:50%;background:var(--gold-d);border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:12px;color:var(--gold);flex-shrink:0}
+.t-name{font-size:15px;font-weight:500;color:var(--white);margin-bottom:2px}
+.t-role{font-family:var(--fm);font-size:9px;letter-spacing:1px;color:var(--w30)}
+.t-veri{margin-left:auto;font-family:var(--fm);font-size:9px;letter-spacing:2px;color:var(--gold);border:1px solid var(--gold-b);padding:5px 11px;text-transform:uppercase}
+
+/* ═══════════════════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════════════════ */
+.c-layout{display:grid;grid-template-columns:1fr 1fr;gap:100px;align-items:center}
+.c-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.c-card{background:var(--navy-2);border:1px solid var(--gold-b);padding:24px 20px;transition:border-color .3s,transform .35s cubic-bezier(.34,1.56,.64,1)}
+.c-card:hover{border-color:rgba(212,168,67,.5);transform:translateY(-4px)}
+.c-val{font-family:var(--fd);font-size:18px;font-weight:500;color:var(--gold);margin:9px 0 3px}
+.c-sub{font-size:12px;color:var(--w30)}
+
+/* ═══════════════════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════════════════ */
+#footer{background:#080F18;border-top:1px solid rgba(212,168,67,.1);padding:68px 64px 36px}
+.f-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:56px;margin-bottom:56px}
+.f-logo{font-family:var(--fd);font-size:20px;font-weight:500;color:var(--white)}
+.f-logo em{color:var(--gold);font-style:normal}
+.f-brand p{font-size:13px;color:rgba(240,244,248,.35);line-height:1.85;max-width:250px;margin-top:12px}
+.f-col-h{font-family:var(--fm);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(212,168,67,.4);margin-bottom:18px}
+.f-col ul{list-style:none;display:flex;flex-direction:column;gap:11px}
+.f-col a{font-size:13px;color:rgba(240,244,248,.38);transition:color .3s}
+.f-col a:hover{color:var(--gold)}
+.f-addr{font-size:13px;color:rgba(240,244,248,.38);font-style:normal;line-height:1.9}
+.f-addr a{color:rgba(212,168,67,.55);transition:color .3s}
+.f-addr a:hover{color:var(--gold)}
+.f-bot{border-top:1px solid rgba(212,168,67,.08);padding-top:22px;display:flex;justify-content:space-between;align-items:center;font-family:var(--fm);font-size:9px;letter-spacing:2px;color:rgba(240,244,248,.18);text-transform:uppercase}
+
+/* ═══════════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════════ */
+#modal{display:none;position:fixed;inset:0;z-index:300;background:rgba(15,28,46,.82);backdrop-filter:blur(16px);align-items:center;justify-content:center;padding:20px}
+.m-card{background:var(--navy-2);border:1px solid var(--gold-b);width:100%;max-width:580px;max-height:90vh;overflow-y:auto;padding:48px;position:relative;animation:mIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.m-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),var(--orange))}
+@keyframes mIn{from{opacity:0;transform:scale(.94) translateY(18px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.m-cls{position:absolute;top:18px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid var(--gold-b);background:transparent;color:var(--w30);font-size:18px;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.m-cls:hover{border-color:var(--gold);color:var(--gold)}
+.m-tit{font-family:var(--fd);font-size:28px;font-weight:500;color:var(--white);margin:10px 0 6px}
+.m-sub{font-size:13px;color:var(--w60);margin-bottom:28px}
+.m-form{display:flex;flex-direction:column;gap:20px}
+.dz{border:1px dashed rgba(212,168,67,.2);padding:26px;text-align:center;transition:all .3s}
+.dz:hover,.dz.drag{border-color:var(--gold);background:var(--gold-d)}
+.dz-l{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--w30);margin-top:9px}
+.m-ok{display:none;text-align:center;padding:52px 0}
+.ok-ic{width:60px;height:60px;border-radius:50%;background:var(--gold-d);border:1px solid var(--gold-b);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:okP .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes okP{from{transform:scale(0)}to{transform:scale(1)}}
+.ok-tit{font-family:var(--fd);font-size:26px;font-weight:500;color:var(--white);margin-bottom:10px}
+.ok-sub{font-size:13px;color:var(--w60);line-height:1.85;max-width:260px;margin:0 auto 20px}
+
+/* ═══════════════════════════════════════════════════════
+   WHATSAPP FAB
+═══════════════════════════════════════════════════════ */
+#wafab{position:fixed;bottom:34px;right:34px;z-index:50;width:52px;height:52px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(37,211,102,.35);animation:waPulse 2.5s ease-in-out infinite;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+#wafab:hover{transform:scale(1.1);animation:none;box-shadow:0 6px 28px rgba(37,211,102,.55)}
+@keyframes waPulse{0%,100%{box-shadow:0 4px 18px rgba(37,211,102,.35)}50%{box-shadow:0 4px 32px rgba(37,211,102,.6)}}
 </style>
 </head>
 <body>
 
-<div id="noise"></div>
-<div id="pbar"></div>
-
+<!-- GRAIN -->
+<div id="noise" aria-hidden="true"></div>
+<!-- PROGRESS -->
+<div id="pbar" aria-hidden="true"></div>
 <!-- CURSOR -->
-<div id="cdot"></div>
-<div id="cring"></div>
+<div id="cdot" aria-hidden="true"></div>
+<div id="cring" aria-hidden="true"></div>
 
 <!-- LOADER -->
 <div id="loader">
-  <div class="ll">Swastik<em> Prime</em></div>
-  <div class="lbw"><div id="lb"></div></div>
-  <div id="lpct">00%</div>
+  <div class="l-logo">Swastik<em> Prime</em></div>
+  <div class="l-bar-wrap"><div id="l-bar"></div></div>
+  <div id="l-pct">00%</div>
 </div>
 
 <!-- NAV -->
 <nav id="nav">
-  <a href="/" class="nlogo">Swastik<em> Prime</em></a>
-  <ul class="nlinks">
+  <a href="/" class="n-logo">Swastik<em> Prime</em></a>
+  <ul class="n-links">
     <li><a href="#services">Residential</a></li>
     <li><a href="#services">Commercial</a></li>
     <li><a href="#services">Land</a></li>
     <li><a href="#services">Pre-Leased</a></li>
-    <li><a href="#about">About</a></li>
+    <li><a href="#services">Industrial</a></li>
+    <li><a href="#why-us">About</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
-  <button class="ncta" onclick="openModal()">Sell / Rent Property</button>
+  <button class="n-cta" onclick="openModal()">Sell / Rent Property</button>
 </nav>
 
 <!-- HERO -->
@@ -317,27 +454,27 @@ address a:hover{color:var(--gold)}
   <div id="sticky">
     <canvas id="three-canvas"></canvas>
 
-    <!-- ACT 1 — visible immediately -->
+    <!-- ACT 1 -->
     <div class="act" id="act1">
-      <div class="ov">Central India's Trusted Advisory</div>
+      <div class="act-ov">Central India's Trusted Advisory</div>
       <h1>Your Trusted<br/><em>Partner</em> in<br/>Real Estate<br/>Decisions</h1>
-      <p>AI-powered insights and expert advisory for your property journey across Central India.</p>
+      <p>AI-powered insights, personalized guidance, and expert advisory for your property journey.</p>
     </div>
 
     <!-- ACT 2 -->
-    <div class="act" id="act2" style="opacity:0;pointer-events:none">
-      <div class="ov">From Land to Legacy</div>
+    <div class="act" id="act2">
+      <div class="act-ov">From Land to Legacy</div>
       <h2>Every property,<br/>a story we help<br/><em>you write.</em></h2>
-      <p>Residential. Commercial. Pre-Leased. Industrial. We cover every dimension of Central India's property market.</p>
+      <p>Residential. Commercial. Pre-Leased. Industrial. We cover every dimension of Central India's market.</p>
     </div>
 
     <!-- ACT 3 -->
-    <div class="act" id="act3" style="opacity:0;pointer-events:none">
-      <div class="ov">Your Journey Starts Here</div>
+    <div class="act" id="act3">
+      <div class="act-ov">Your Journey Starts Here</div>
       <h2>Ready to find<br/>your <em>perfect space?</em></h2>
-      <div class="ctarow">
-        <button class="btn-t">Get AI Report →</button>
-        <button class="btn-o">Explore Projects</button>
+      <div class="cta-row">
+        <button class="btn orange">Get AI Report →</button>
+        <button class="btn outline">Explore Projects</button>
       </div>
     </div>
 
@@ -349,24 +486,24 @@ address a:hover{color:var(--gold)}
     </div>
 
     <!-- PROPERTY CARD -->
-    <div id="pcard" style="opacity:0;transform:translateX(40px)">
-      <span class="pbadge">Pre-Leased</span>
-      <div class="pprice"><small>₹</small>1.2 Cr</div>
-      <div class="ploc">Vijay Nagar, Indore MP</div>
-      <div class="ptags"><span class="ptag">Commercial</span><span class="ptag">2400 sq.ft</span></div>
-      <div class="proi"><span class="proi-l">Fixed ROI</span><span class="proi-v">8.5%</span></div>
+    <div id="pcard">
+      <span class="pc-badge">Pre-Leased</span>
+      <div class="pc-price"><small>₹</small>1.2 Cr</div>
+      <div class="pc-loc">Vijay Nagar, Indore MP</div>
+      <div class="pc-tags"><span class="pc-tag">Commercial</span><span class="pc-tag">2400 sq.ft</span></div>
+      <div class="pc-roi"><span class="pc-roi-l">Fixed ROI</span><span class="pc-roi-v">8.5%</span></div>
     </div>
 
-    <!-- STATS -->
-    <div id="sbar" style="opacity:0">
-      <div class="si"><div class="sn">500+</div><div class="sl">Projects Advised</div></div>
-      <div class="si"><div class="sn">5+</div><div class="sl">Years Expertise</div></div>
-      <div class="si"><div class="sn">₹200Cr+</div><div class="sl">Deals Closed</div></div>
-      <div class="si"><div class="sn">50+</div><div class="sl">Corporate Clients</div></div>
+    <!-- STATS BAR -->
+    <div id="sbar">
+      <div class="si"><div class="si-num">500+</div><div class="si-lbl">Projects Advised</div></div>
+      <div class="si"><div class="si-num">5+</div><div class="si-lbl">Years Expertise</div></div>
+      <div class="si"><div class="si-num">₹200Cr+</div><div class="si-lbl">Deals Closed</div></div>
+      <div class="si"><div class="si-num">50+</div><div class="si-lbl">Corporate Clients</div></div>
     </div>
 
     <!-- SCROLL CUE -->
-    <div id="scue" style="opacity:0">
+    <div id="scue">
       <span>Scroll to explore</span>
       <div id="sline"></div>
     </div>
@@ -383,33 +520,45 @@ address a:hover{color:var(--gold)}
 <section class="section" id="why-us"></section>
 
 <!-- TESTIMONIALS -->
-<section class="section teal" id="testimonials"></section>
+<section class="section dark" id="testimonials"></section>
 
 <!-- CONTACT -->
-<section class="section" id="contact"></section>
+<section class="section alt" id="contact"></section>
 
 <!-- FOOTER -->
 <footer id="footer">
-  <div class="fgrid">
-    <div class="fbrand">
-      <div class="flogo">Swastik<em> Prime</em></div>
+  <div class="f-grid">
+    <div class="f-brand">
+      <div class="f-logo">Swastik<em> Prime</em></div>
       <p>Central India's trusted real estate advisory. AI-powered insights for buyers, sellers, and investors.</p>
-      <div class="sl" style="margin-top:18px">Backed by Swastik Group of Companies</div>
+      <div class="si-lbl" style="margin-top:16px">Backed by Swastik Group of Companies</div>
     </div>
-    <div class="fcol">
-      <div class="fcol-h">Services</div>
-      <ul><li><a href="#">Residential</a></li><li><a href="#">Commercial</a></li><li><a href="#">Land & Plots</a></li><li><a href="#">Pre-Leased</a></li><li><a href="#">Industrial</a></li></ul>
+    <div class="f-col">
+      <div class="f-col-h">Services</div>
+      <ul>
+        <li><a href="#">Residential</a></li>
+        <li><a href="#">Commercial</a></li>
+        <li><a href="#">Land &amp; Plots</a></li>
+        <li><a href="#">Pre-Leased</a></li>
+        <li><a href="#">Built-to-Suit</a></li>
+        <li><a href="#">Industrial</a></li>
+      </ul>
     </div>
-    <div class="fcol">
-      <div class="fcol-h">Company</div>
-      <ul><li><a href="#">About Us</a></li><li><a href="#">Investor Projects</a></li><li><a href="#">Blog & Insights</a></li><li><a href="#">Contact</a></li></ul>
+    <div class="f-col">
+      <div class="f-col-h">Company</div>
+      <ul>
+        <li><a href="#">About Us</a></li>
+        <li><a href="#">Investor Projects</a></li>
+        <li><a href="#">Blog &amp; Insights</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
     </div>
-    <div class="fcol">
-      <div class="fcol-h">Find Us</div>
-      <address>Indore, Madhya Pradesh<br/>Bhopal | Jabalpur<br/><br/><a href="https://wa.me/91XXXXXXXXXX">WhatsApp ↗</a></address>
+    <div class="f-col">
+      <div class="f-col-h">Find Us</div>
+      <address class="f-addr">Indore, Madhya Pradesh<br/>Bhopal | Jabalpur<br/><br/><a href="https://wa.me/91XXXXXXXXXX">WhatsApp ↗</a></address>
     </div>
   </div>
-  <div class="fbot">
+  <div class="f-bot">
     <span>© 2025 Swastik Prime Realtors. All rights reserved.</span>
     <span>Indore, MP — India</span>
   </div>
@@ -418,137 +567,148 @@ address a:hover{color:var(--gold)}
 <!-- MODAL -->
 <div id="modal">
   <div style="position:absolute;inset:0" onclick="closeModal()"></div>
-  <div class="mcard">
-    <button class="mcls" onclick="closeModal()">×</button>
-    <div class="ov2">Seller / Landlord Form</div>
-    <div class="mtit">List Your Property</div>
-    <div class="msub">Our team will contact you within 24 hours with a market valuation.</div>
-    <div class="mform" id="mf">
+  <div class="m-card">
+    <button class="m-cls" onclick="closeModal()">×</button>
+    <div class="ov">Seller / Landlord Form</div>
+    <div class="m-tit">List Your Property</div>
+    <div class="m-sub">Our team will contact you within 24 hours with a market valuation.</div>
+    <div class="m-form" id="mf">
       <div class="fld"><div class="flbl">Full Name</div><input class="finp" type="text" placeholder="Your full name"/></div>
       <div class="fld"><div class="flbl">Contact Number</div><input class="finp" type="tel" placeholder="+91 XXXXXXXXXX"/></div>
       <div class="fld"><div class="flbl">Email Address</div><input class="finp" type="email" placeholder="you@example.com"/></div>
-      <div class="fld"><div class="flbl">Location</div><input class="finp" type="text" placeholder="e.g. Vijay Nagar, Indore"/></div>
+      <div class="fld"><div class="flbl">Location (City / Locality)</div><input class="finp" type="text" placeholder="e.g. Vijay Nagar, Indore"/></div>
       <div class="fld"><div class="flbl">Size (sq.ft or acres)</div><input class="finp" type="text" placeholder="e.g. 2400 sq.ft"/></div>
       <div class="fld"><div class="flbl">Expected Price / Rent</div><input class="finp" type="text" placeholder="e.g. ₹1.2 Cr"/></div>
-      <div class="fld"><div class="flbl">Property Type</div>
-        <select class="finp" style="background:var(--bg2);cursor:none">
-          <option value="">Select…</option><option>Residential</option><option>Commercial</option><option>Land / Plot</option><option>Pre-Leased</option><option>Industrial</option>
+      <div class="fld">
+        <div class="flbl">Property Type</div>
+        <select class="finp" style="background:var(--navy-2)">
+          <option value="">Select type…</option>
+          <option>Residential</option><option>Commercial</option>
+          <option>Land / Plot</option><option>Pre-Leased</option><option>Industrial</option>
         </select>
       </div>
       <div>
         <div class="flbl" style="margin-bottom:10px">Documents / Images (optional)</div>
-        <div class="dz" id="dz" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="this.classList.remove('drag');document.getElementById('dzl').textContent=event.dataTransfer.files.length+' file(s) selected';event.preventDefault()" onclick="document.getElementById('mfile').click()">
-          <input type="file" id="mfile" style="display:none" multiple onchange="document.getElementById('dzl').textContent=this.files.length+' file(s) selected'"/>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(237,228,214,.3)" stroke-width="1.5" style="margin:0 auto 9px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <div class="dzl" id="dzl">Drop files or click to browse</div>
+        <div class="dz" id="dz"
+          ondragover="event.preventDefault();this.classList.add('drag')"
+          ondragleave="this.classList.remove('drag')"
+          ondrop="this.classList.remove('drag');document.getElementById('dzl').textContent=event.dataTransfer.files.length+' file(s) selected';event.preventDefault()"
+          onclick="document.getElementById('mf-file').click()">
+          <input type="file" id="mf-file" style="display:none" multiple onchange="document.getElementById('dzl').textContent=this.files.length+' file(s) selected'"/>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(240,244,248,.3)" stroke-width="1.5" style="margin:0 auto 8px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div class="dz-l" id="dzl">Drop files or click to browse</div>
         </div>
       </div>
-      <button class="btn terra" style="width:100%;justify-content:center" onclick="submitModal()">Submit Property Details →</button>
+      <button class="btn orange" style="width:100%;justify-content:center" onclick="submitModal()">Submit Property Details →</button>
     </div>
-    <div class="mok" id="mok">
-      <div class="okic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
-      <div class="oktit">Thank You</div>
-      <div class="oksub">Our advisory team will contact you within 24 hours with a market valuation.</div>
-      <div class="ov2" style="justify-content:center">— Swastik Prime Realtors</div>
+    <div class="m-ok" id="mok">
+      <div class="ok-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="ok-tit">Thank You</div>
+      <div class="ok-sub">Our advisory team will contact you within 24 hours with a market valuation and next steps.</div>
+      <div class="ov" style="justify-content:center">— Swastik Prime Realtors</div>
     </div>
   </div>
 </div>
 
-<!-- WHATSAPP -->
-<a id="wafab" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">
+<!-- WHATSAPP FAB -->
+<a id="wafab" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
   <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
 </a>
 
+<!-- ═══════════════════════════════════════════════════════════════
+     ALL JAVASCRIPT — inline, no module race conditions
+═══════════════════════════════════════════════════════════════ -->
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
-// ── CURSOR ────────────────────────────────────────────────────────────
-const cdot=document.getElementById('cdot'),cring=document.getElementById('cring');
-let mx=0,my=0,rx=0,ry=0;
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cdot.style.left=mx+'px';cdot.style.top=my+'px';});
-(function cl(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(cl);})();
+/* ── CURSOR ──────────────────────────────────────────── */
+const CDOT=document.getElementById('cdot'),CRING=document.getElementById('cring');
+let CMX=0,CMY=0,CRX=0,CRY=0;
+document.addEventListener('mousemove',e=>{CMX=e.clientX;CMY=e.clientY;CDOT.style.left=CMX+'px';CDOT.style.top=CMY+'px';});
+(function cl(){CRX+=(CMX-CRX)*.1;CRY+=(CMY-CRY)*.1;CRING.style.left=CRX+'px';CRING.style.top=CRY+'px';requestAnimationFrame(cl);})();
 document.querySelectorAll('a,button').forEach(el=>{
-  el.addEventListener('mouseenter',()=>{cring.style.width='54px';cring.style.height='54px';cring.style.borderColor='rgba(200,169,110,.85)';cring.style.background='rgba(200,169,110,.07)';cdot.style.opacity='0';});
-  el.addEventListener('mouseleave',()=>{cring.style.width='38px';cring.style.height='38px';cring.style.borderColor='rgba(200,169,110,.45)';cring.style.background='transparent';cdot.style.opacity='1';});
+  el.addEventListener('mouseenter',()=>{CRING.style.width='54px';CRING.style.height='54px';CRING.style.borderColor='rgba(212,168,67,.85)';CRING.style.background='rgba(212,168,67,.07)';CDOT.style.opacity='0';});
+  el.addEventListener('mouseleave',()=>{CRING.style.width='38px';CRING.style.height='38px';CRING.style.borderColor='rgba(212,168,67,.45)';CRING.style.background='transparent';CDOT.style.opacity='1';});
 });
 
-// ── LOADER ────────────────────────────────────────────────────────────
-let p=0;
-const ldr=document.getElementById('loader'),lb=document.getElementById('lb'),lpct=document.getElementById('lpct');
-const ltick=setInterval(()=>{
-  p+=Math.random()*13;
-  if(p>=100){p=100;clearInterval(ltick);setTimeout(boot,250);}
-  lb.style.width=p+'%';
-  lpct.textContent=Math.floor(p).toString().padStart(2,'0')+'%';
+/* ── LOADER ──────────────────────────────────────────── */
+let LP=0;
+const LBAR=document.getElementById('l-bar'),LPCT=document.getElementById('l-pct'),LDR=document.getElementById('loader');
+const LT=setInterval(()=>{
+  LP+=Math.random()*13;
+  if(LP>=100){LP=100;clearInterval(LT);setTimeout(BOOT,280);}
+  LBAR.style.width=LP+'%';
+  LPCT.textContent=Math.floor(LP).toString().padStart(2,'0')+'%';
 },60);
 
-// ── BOOT ──────────────────────────────────────────────────────────────
-function boot(){
-  // Slide loader away
-  gsap.to(ldr,{yPercent:-100,duration:1.1,ease:'power4.inOut',onComplete:()=>ldr.style.display='none'});
+/* ── THREE.JS GLOBALS ────────────────────────────────── */
+let R,SC,CAM,WFS,PARTS,WINS=[];
 
-  // Init THREE.JS — guaranteed DOM is ready here
+/* ── BOOT ────────────────────────────────────────────── */
+function BOOT(){
+  gsap.to(LDR,{yPercent:-100,duration:1.1,ease:'power4.inOut',onComplete:()=>LDR.style.display='none'});
+
   initThree();
-
-  // Init hero scroll
   initHero();
 
-  // Init nav
-  initNav();
+  // Nav scroll
+  window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>60),{passive:true});
 
-  // Init sections
-  initServices();
-  initAIReport();
-  initWhyUs();
-  initTestimonials();
-  initContact();
+  // Fill sections
+  fillServices();
+  fillAIReport();
+  fillWhyUs();
+  fillTestimonials();
+  fillContact();
 
-  // Batch scroll reveals
-  ScrollTrigger.batch('.wu',{onEnter:els=>gsap.to(els,{opacity:1,y:0,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
-  ScrollTrigger.batch('.wl',{onEnter:els=>gsap.to(els,{opacity:1,x:0,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
-  ScrollTrigger.batch('.wr',{onEnter:els=>gsap.to(els,{opacity:1,x:0,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
-  ScrollTrigger.batch('.wf',{onEnter:els=>gsap.to(els,{opacity:1,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
+  // Batch reveals
+  ScrollTrigger.batch('.wu',{onEnter:e=>gsap.to(e,{opacity:1,y:0,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
+  ScrollTrigger.batch('.wl',{onEnter:e=>gsap.to(e,{opacity:1,x:0,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
+  ScrollTrigger.batch('.wr',{onEnter:e=>gsap.to(e,{opacity:1,x:0,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
+  ScrollTrigger.batch('.wf',{onEnter:e=>gsap.to(e,{opacity:1,duration:.85,ease:'power3.out',stagger:.1}),start:'top 85%'});
 }
 
-// ── THREE.JS ──────────────────────────────────────────────────────────
-let renderer,scene,camera,wfSphere,particles,winGroups=[];
-
+/* ═══════════════════════════════════════════════════════
+   THREE.JS SCENE
+═══════════════════════════════════════════════════════ */
 function initThree(){
   const canvas=document.getElementById('three-canvas');
   const W=window.innerWidth,H=window.innerHeight;
 
-  renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
-  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setSize(W,H);
-  renderer.toneMapping=THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure=1.1;
-  renderer.shadowMap.enabled=true;
-  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  R=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false,powerPreference:'high-performance'});
+  R.setPixelRatio(Math.min(devicePixelRatio,2));
+  R.setSize(W,H);
+  R.toneMapping=THREE.ACESFilmicToneMapping;
+  R.toneMappingExposure=1.1;
+  R.shadowMap.enabled=true;
+  R.shadowMap.type=THREE.PCFSoftShadowMap;
 
-  scene=new THREE.Scene();
-  scene.background=new THREE.Color('#06141A');
-  scene.fog=new THREE.FogExp2('#06141A',.016);
+  SC=new THREE.Scene();
+  SC.background=new THREE.Color('#0F1C2E');
+  SC.fog=new THREE.FogExp2('#0F1C2E',.016);
 
-  camera=new THREE.PerspectiveCamera(54,W/H,.1,300);
-  camera.position.set(0,22,52);
-  camera.lookAt(10,5,0);
+  CAM=new THREE.PerspectiveCamera(54,W/H,.1,300);
+  CAM.position.set(0,22,52);
+  CAM.lookAt(10,5,0);
 
-  // LIGHTS
-  scene.add(new THREE.AmbientLight('#162E32',2.2));
+  // Lights
+  SC.add(new THREE.AmbientLight('#1A2E40',2.2));
   const key=new THREE.DirectionalLight('#E8D5A8',2.0);
   key.position.set(14,32,12);key.castShadow=true;
   key.shadow.mapSize.set(2048,2048);
   key.shadow.camera.left=-50;key.shadow.camera.right=50;
   key.shadow.camera.top=50;key.shadow.camera.bottom=-8;
   key.shadow.camera.far=100;key.shadow.bias=-.001;
-  scene.add(key);
-  const rim=new THREE.DirectionalLight('#B85530',1.1);rim.position.set(-18,8,-14);scene.add(rim);
-  [[5,10,2,'#C8A96E',6,30],[14,14,1,'#C8A96E',5,25],[10,8,-5,'#B85530',4,22],[20,12,2,'#D4B87A',5,28],[8,6,6,'#C8A96E',3,20]].forEach(([x,y,z,c,i,d])=>{
-    const pt=new THREE.PointLight(c,i,d);pt.position.set(x,y,z);scene.add(pt);
+  SC.add(key);
+  const rim=new THREE.DirectionalLight('#4A6FA5',1.1);rim.position.set(-18,8,-14);SC.add(rim);
+
+  // Point lights
+  [[5,10,2,'#D4A843',6,30],[14,14,1,'#D4A843',5,25],[10,8,-5,'#E07B3A',4,22],[20,12,2,'#D4A843',5,28],[8,6,6,'#D4A843',3,20]].forEach(([x,y,z,c,i,d])=>{
+    const pt=new THREE.PointLight(c,i,d);pt.position.set(x,y,z);SC.add(pt);
   });
 
-  // BUILDINGS
-  const bdata=[
+  // Buildings
+  const BD=[
     [6,-2,3,2.2,24,.15],[10.5,-3,2.6,2,17,.11],[14,-1.5,3.8,2.8,30,.16],
     [18,-2,2.4,1.9,13,.1],[15.5,2.5,2.2,1.8,20,.13],[4.5,1,2.4,2,14,.11],
     [20,-1,3.2,2.2,22,.14],[11,2.5,2.6,2,11,.1],[22.5,-2,2,2,16,.12],
@@ -559,27 +719,25 @@ function initThree(){
     [25,2,2,1.8,8,.09],[17,-6,2.4,2,6,.07],
   ];
 
-  const roofMat=new THREE.MeshStandardMaterial({color:'#C8A96E',emissive:'#C8A96E',emissiveIntensity:.75});
+  const roofMat=new THREE.MeshStandardMaterial({color:'#D4A843',emissive:'#D4A843',emissiveIntensity:.75});
 
-  bdata.forEach(([x,z,w,d,h,ei])=>{
-    // Body
-    const bMat=new THREE.MeshStandardMaterial({color:'#0A1E26',emissive:new THREE.Color('#C8A96E'),emissiveIntensity:ei,metalness:.92,roughness:.18});
+  BD.forEach(([x,z,w,d,h,ei])=>{
+    const bMat=new THREE.MeshStandardMaterial({color:'#162336',emissive:new THREE.Color('#D4A843'),emissiveIntensity:ei,metalness:.92,roughness:.18});
     const body=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),bMat);
     body.position.set(x,h/2,z);body.castShadow=true;body.receiveShadow=true;
-    scene.add(body);
+    SC.add(body);
 
-    // Roof strip
     const roof=new THREE.Mesh(new THREE.BoxGeometry(w+.1,.07,d+.1),roofMat);
-    roof.position.set(x,h+.035,z);scene.add(roof);
+    roof.position.set(x,h+.035,z);SC.add(roof);
 
     // Windows
-    const wg=new THREE.Group();wg.userData.isWin=true;
+    const wg=new THREE.Group();
     const rows=Math.floor(h/1.55),cols=Math.floor(w),scols=Math.floor(d);
     for(let r=0;r<rows;r++){
       for(let c=0;c<cols;c++){
         if(Math.random()>.28){
           const lit=Math.random()>.42;
-          const wm=new THREE.MeshStandardMaterial({color:lit?'#F0E0B0':'#0e2030',emissive:lit?'#E8C878':'#080e14',emissiveIntensity:lit?1.1:.03});
+          const wm=new THREE.MeshStandardMaterial({color:lit?'#F0E8C8':'#0e1a2a',emissive:lit?'#E8D080':'#080e18',emissiveIntensity:lit?1.1:.03});
           const win=new THREE.Mesh(new THREE.PlaneGeometry(.32,.44),wm);
           win.position.set(x+(c-cols/2)*.82+.38,1.1+r*1.45,z+d/2+.012);
           win.userData.lit=lit;wg.add(win);
@@ -588,7 +746,7 @@ function initThree(){
       for(let c=0;c<scols;c++){
         if(Math.random()>.45){
           const lit=Math.random()>.5;
-          const wm=new THREE.MeshStandardMaterial({color:lit?'#E8D898':'#0e2030',emissive:lit?'#E8C878':'#080e14',emissiveIntensity:lit?.9:.03});
+          const wm=new THREE.MeshStandardMaterial({color:lit?'#E8D898':'#0e1a2a',emissive:lit?'#E8D080':'#080e18',emissiveIntensity:lit?.9:.03});
           const win=new THREE.Mesh(new THREE.PlaneGeometry(.32,.44),wm);
           win.rotation.y=Math.PI/2;
           win.position.set(x+w/2+.012,1.1+r*1.45,z+(c-scols/2)*.82+.38);
@@ -596,155 +754,193 @@ function initThree(){
         }
       }
     }
-    scene.add(wg);winGroups.push(wg);
+    SC.add(wg);WINS.push(wg);
 
     // Antenna on tall buildings
     if(h>20){
-      const ant=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,4.5,8),new THREE.MeshStandardMaterial({color:'#C8A96E',emissive:'#C8A96E',emissiveIntensity:.4}));
-      ant.position.set(x,h+2.25,z);scene.add(ant);
+      const ant=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,4.5,8),new THREE.MeshStandardMaterial({color:'#D4A843',emissive:'#D4A843',emissiveIntensity:.4}));
+      ant.position.set(x,h+2.25,z);SC.add(ant);
       const bm=new THREE.MeshStandardMaterial({color:'#ff4040',emissive:'#ff0000',emissiveIntensity:3});
       const bl=new THREE.Mesh(new THREE.SphereGeometry(.1,8,8),bm);
-      bl.position.set(x,h+4.6,z);scene.add(bl);
+      bl.position.set(x,h+4.6,z);SC.add(bl);
       let on=true;setInterval(()=>{on=!on;bm.emissiveIntensity=on?3:.1;},900+Math.random()*800);
     }
   });
 
-  // GROUND
-  const gnd=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#060F12',metalness:.92,roughness:.22,emissive:'#091518',emissiveIntensity:.25}));
-  gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;scene.add(gnd);
-  for(let i=0;i<36;i++){const m=new THREE.MeshBasicMaterial({color:'#C8A96E',transparent:true,opacity:.055});const l=new THREE.Mesh(new THREE.PlaneGeometry(90,.013),m);l.rotation.x=-Math.PI/2;l.position.set(13,.005,-22+i*3.2);scene.add(l);}
-  for(let i=0;i<24;i++){const m=new THREE.MeshBasicMaterial({color:'#C8A96E',transparent:true,opacity:.038});const l=new THREE.Mesh(new THREE.PlaneGeometry(.013,90),m);l.rotation.x=-Math.PI/2;l.position.set(-8+i*3.8,.005,8);scene.add(l);}
+  // Ground
+  const gnd=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:'#080F18',metalness:.92,roughness:.22,emissive:'#0A1520',emissiveIntensity:.25}));
+  gnd.rotation.x=-Math.PI/2;gnd.receiveShadow=true;SC.add(gnd);
+  for(let i=0;i<36;i++){const m=new THREE.MeshBasicMaterial({color:'#D4A843',transparent:true,opacity:.05});const l=new THREE.Mesh(new THREE.PlaneGeometry(90,.013),m);l.rotation.x=-Math.PI/2;l.position.set(13,.005,-22+i*3.2);SC.add(l);}
+  for(let i=0;i<24;i++){const m=new THREE.MeshBasicMaterial({color:'#D4A843',transparent:true,opacity:.035});const l=new THREE.Mesh(new THREE.PlaneGeometry(.013,90),m);l.rotation.x=-Math.PI/2;l.position.set(-8+i*3.8,.005,8);SC.add(l);}
 
-  // PARTICLES
-  const pc=220,pp=new Float32Array(pc*3),col=new Float32Array(pc*3);
-  const gc=new THREE.Color('#C8A96E'),tc=new THREE.Color('#B85530');
-  for(let i=0;i<pc;i++){pp[i*3]=(Math.random()-.5)*90;pp[i*3+1]=Math.random()*38;pp[i*3+2]=(Math.random()-.5)*70;const c=Math.random()>.65?tc:gc;col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
+  // Particles
+  const pc=180,pp=new Float32Array(pc*3),col=new Float32Array(pc*3);
+  const gc=new THREE.Color('#D4A843'),wc=new THREE.Color('#F0F4F8');
+  for(let i=0;i<pc;i++){pp[i*3]=(Math.random()-.5)*90;pp[i*3+1]=Math.random()*38;pp[i*3+2]=(Math.random()-.5)*70;const c=Math.random()>.6?wc:gc;col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;}
   const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pp,3));pg.setAttribute('color',new THREE.BufferAttribute(col,3));
-  particles=new THREE.Points(pg,new THREE.PointsMaterial({size:.11,vertexColors:true,transparent:true,opacity:.6}));
-  scene.add(particles);
+  PARTS=new THREE.Points(pg,new THREE.PointsMaterial({size:.11,vertexColors:true,transparent:true,opacity:.6}));
+  SC.add(PARTS);
 
-  // SPHERE
-  wfSphere=new THREE.Mesh(new THREE.IcosahedronGeometry(5.5,1),new THREE.MeshStandardMaterial({color:'#C8A96E',wireframe:true,transparent:true,opacity:.05,emissive:'#C8A96E',emissiveIntensity:.18}));
-  wfSphere.position.set(6,17,-9);scene.add(wfSphere);
+  // Wireframe sphere
+  WFS=new THREE.Mesh(new THREE.IcosahedronGeometry(5.5,1),new THREE.MeshStandardMaterial({color:'#D4A843',wireframe:true,transparent:true,opacity:.05,emissive:'#D4A843',emissiveIntensity:.18}));
+  WFS.position.set(6,17,-9);SC.add(WFS);
 
-  window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+  // Resize
+  window.addEventListener('resize',()=>{CAM.aspect=window.innerWidth/window.innerHeight;CAM.updateProjectionMatrix();R.setSize(window.innerWidth,window.innerHeight);});
 
-  // RENDER LOOP
+  // Render loop
   const clock=new THREE.Clock();let ft=0;
   function frame(){
     requestAnimationFrame(frame);
     const t=clock.getElapsedTime();
-    wfSphere.rotation.x=t*.06;wfSphere.rotation.y=t*.1;wfSphere.position.y=17+Math.sin(t*.2)*.9;
-    particles.rotation.y=t*.007;particles.position.y=Math.sin(t*.08)*.35;
-    ft++;if(ft>9){ft=0;winGroups.forEach(wg=>wg.children.forEach(w=>{if(Math.random()>.996){w.userData.lit=!w.userData.lit;w.material.emissiveIntensity=w.userData.lit?1.1:.03;w.material.emissive.setHex(w.userData.lit?0xE8C878:0x080e14);}}));}
+    WFS.rotation.x=t*.06;WFS.rotation.y=t*.1;WFS.position.y=17+Math.sin(t*.2)*.9;
+    PARTS.rotation.y=t*.007;PARTS.position.y=Math.sin(t*.08)*.35;
+    ft++;if(ft>9){ft=0;WINS.forEach(wg=>wg.children.forEach(w=>{if(Math.random()>.996){w.userData.lit=!w.userData.lit;w.material.emissiveIntensity=w.userData.lit?1.1:.03;w.material.emissive.setHex(w.userData.lit?0xE8D080:0x080e18);}}));}
     tickHero();
-    renderer.render(scene,camera);
+    R.render(SC,CAM);
   }
   frame();
 }
 
-// ── HERO SCROLL ───────────────────────────────────────────────────────
-const CAM={
+/* ═══════════════════════════════════════════════════════
+   HERO SCROLL — display:none act switching
+═══════════════════════════════════════════════════════ */
+const CPOS={
   a1:{x:0,y:22,z:52,lx:10,ly:5},
   a2:{x:6,y:11,z:36,lx:13,ly:7},
   a3:{x:13,y:7,z:22,lx:16,ly:10},
 };
-const ct={...CAM.a1};
-let curAct=0,mmx=0,mmy=0;
+const CT={...CPOS.a1};
+let curAct=-1,HMX=0,HMY=0;
 
 function initHero(){
-  document.addEventListener('mousemove',e=>{mmx=(e.clientX/window.innerWidth-.5)*2;mmy=(e.clientY/window.innerHeight-.5)*2;});
+  document.addEventListener('mousemove',e=>{HMX=(e.clientX/window.innerWidth-.5)*2;HMY=(e.clientY/window.innerHeight-.5)*2;});
+
+  // Show act1 immediately
+  showAct(0);
 
   const tl=gsap.timeline({
     scrollTrigger:{
       trigger:'#pin-spacer',start:'top top',end:'bottom bottom',scrub:1.4,
-      onUpdate(self){updateAct(self.progress);document.getElementById('pbar').style.width=(self.progress*100)+'%';}
+      onUpdate(self){
+        switchAct(self.progress);
+        document.getElementById('pbar').style.width=(self.progress*100)+'%';
+      }
     }
   });
-  tl.to(ct,{x:CAM.a2.x,y:CAM.a2.y,z:CAM.a2.z,lx:CAM.a2.lx,ly:CAM.a2.ly,duration:1,ease:'power2.inOut'},0.33)
-    .to(ct,{x:CAM.a3.x,y:CAM.a3.y,z:CAM.a3.z,lx:CAM.a3.lx,ly:CAM.a3.ly,duration:1,ease:'power2.inOut'},0.67);
+  tl.to(CT,{x:CPOS.a2.x,y:CPOS.a2.y,z:CPOS.a2.z,lx:CPOS.a2.lx,ly:CPOS.a2.ly,duration:1,ease:'power2.inOut'},0.33)
+    .to(CT,{x:CPOS.a3.x,y:CPOS.a3.y,z:CPOS.a3.z,lx:CPOS.a3.lx,ly:CPOS.a3.ly,duration:1,ease:'power2.inOut'},0.67);
 
-  // Entrance — act1 already visible, just animate it up
-  gsap.fromTo('#act1',{y:32},{y:0,duration:1.3,ease:'power4.out',delay:0.35});
+  // Entrance animations
+  gsap.fromTo('#act1',{y:32,opacity:0},{y:0,opacity:1,duration:1.3,ease:'power4.out',delay:.35});
   gsap.to('#sbar',{opacity:1,duration:.8,delay:1.2});
   gsap.to('#scue',{opacity:1,duration:.8,delay:1.9});
 }
 
-function updateAct(p){
-  const na=p<.33?0:p<.66?1:2;
-  if(na===curAct)return;
-  curAct=na;
-  ['act1','act2','act3'].forEach(id=>gsap.to('#'+id,{opacity:0,y:-20,duration:.38,ease:'power2.in',onComplete:()=>{document.getElementById(id).style.pointerEvents='none';}}));
-  const ids=['act1','act2','act3'];
-  gsap.set('#'+ids[na],{y:24});
-  gsap.to('#'+ids[na],{opacity:1,y:0,duration:.7,ease:'power3.out',delay:.28,onStart:()=>{document.getElementById(ids[na]).style.pointerEvents='all';}});
-  document.querySelectorAll('.adot').forEach((d,i)=>d.classList.toggle('on',i===na));
-  if(na===2){gsap.to('#pcard',{opacity:1,x:0,duration:.85,ease:'power3.out',delay:.35});gsap.to('#scue',{opacity:0,duration:.35});}
-  else{gsap.to('#pcard',{opacity:0,x:40,duration:.38,ease:'power2.in'});if(na<2)gsap.to('#scue',{opacity:1,duration:.5,delay:.3});}
+function showAct(idx){
+  if(idx===curAct)return;
+  curAct=idx;
+  const acts=['act1','act2','act3'];
+
+  // Hide ALL — display:none (no overlap possible)
+  acts.forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('visible');
+    gsap.set(el,{opacity:0,y:0});
+  });
+
+  // Show target — display:flex via .visible class
+  const target=document.getElementById(acts[idx]);
+  target.classList.add('visible');
+  gsap.fromTo(target,{opacity:0,y:24},{opacity:1,y:0,duration:.7,ease:'power3.out'});
+
+  // Dots
+  document.querySelectorAll('.adot').forEach((d,i)=>d.classList.toggle('on',i===idx));
+
+  // Property card — only in Act 3
+  const pc=document.getElementById('pcard');
+  if(idx===2){
+    pc.style.display='block';
+    gsap.fromTo(pc,{opacity:0,x:40},{opacity:1,x:0,duration:.85,ease:'power3.out'});
+  } else {
+    gsap.to(pc,{opacity:0,x:40,duration:.3,ease:'power2.in',onComplete:()=>pc.style.display='none'});
+  }
+
+  // Scroll cue — hide after Act 1
+  if(idx===0){gsap.to('#scue',{opacity:1,duration:.5,delay:.3});}
+  else{gsap.to('#scue',{opacity:0,duration:.35});}
+}
+
+function switchAct(p){
+  const na=p<.30?0:p<.63?1:2;
+  showAct(na);
 }
 
 function tickHero(){
-  if(!camera)return;
-  camera.position.x+=(ct.x+mmx*1.8-camera.position.x)*.055;
-  camera.position.y+=(ct.y-mmy*1.2-camera.position.y)*.055;
-  camera.position.z+=(ct.z-camera.position.z)*.055;
-  camera.lookAt(ct.lx,ct.ly,0);
+  if(!CAM)return;
+  CAM.position.x+=(CT.x+HMX*1.8-CAM.position.x)*.055;
+  CAM.position.y+=(CT.y-HMY*1.2-CAM.position.y)*.055;
+  CAM.position.z+=(CT.z-CAM.position.z)*.055;
+  CAM.lookAt(CT.lx,CT.ly,0);
 }
 
-// ── NAV ───────────────────────────────────────────────────────────────
-function initNav(){
-  window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>60),{passive:true});
-}
-
-// ── MODAL ─────────────────────────────────────────────────────────────
+/* ── MODAL ───────────────────────────────────────────── */
 function openModal(){document.getElementById('modal').style.display='flex';document.body.style.overflow='hidden';}
 function closeModal(){document.getElementById('modal').style.display='none';document.body.style.overflow='';}
 function submitModal(){
-  gsap.to('#mf',{opacity:0,y:-14,duration:.35,ease:'power2.in',onComplete:()=>{document.getElementById('mf').style.display='none';document.getElementById('mok').style.display='block';gsap.from('#mok',{opacity:0,y:14,duration:.5,ease:'power3.out'});}});
+  gsap.to('#mf',{opacity:0,y:-14,duration:.35,ease:'power2.in',onComplete:()=>{
+    document.getElementById('mf').style.display='none';
+    document.getElementById('mok').style.display='block';
+    gsap.from('#mok',{opacity:0,y:14,duration:.5,ease:'power3.out'});
+  }});
 }
 
-// ── SERVICES ──────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════
+   SERVICES
+═══════════════════════════════════════════════════════ */
 const SVCS=[
-  {n:'01',t:'Residential',   s:'Homes & Apartments',     d:'Premium homes for families — from affordable plots to luxury villas across Indore, Bhopal, and Jabalpur.',            stat:'200+ Properties'},
-  {n:'02',t:'Commercial',    s:'Office & Retail',         d:'Grade-A offices, retail spaces, and mixed-use developments for businesses planting roots in Central India.',          stat:'80+ Offices'},
-  {n:'03',t:'Land',          s:'Plots & Agricultural',    d:'Prime land parcels for development, agriculture, investment. Verified titles, strategic locations.',                  stat:'500+ Acres'},
-  {n:'04',t:'Pre-Leased',    s:'Fixed ROI Assets',        d:'Tenant-occupied properties, locked leases from Day 1. Fixed monthly income. Zero operational hassle. 8–10% ROI.',   stat:'8–10% ROI'},
-  {n:'05',t:'Built-to-Suit', s:'Custom Development',      d:'End-to-end custom builds tailored to corporate requirements — backed by Swastik Group\'s EPC division.',             stat:'15+ BTS Projects'},
-  {n:'06',t:'Industrial',    s:'Warehousing & Logistics', d:'Warehouse parks, industrial plots, private freight terminals — leveraging Swastik Group\'s logistics network.',       stat:'2M+ sq.ft'},
-  {n:'07',t:'Investor Projects',s:'High-Growth Assets',  d:'Curated investment opportunities in emerging Central India markets with AI-backed projections and due diligence.',     stat:'₹200Cr+ Advisory'},
+  {n:'01',t:'Residential',s:'Homes & Apartments',d:'Premium homes for families — from affordable plots to luxury villas across Indore, Bhopal, and Jabalpur.',stat:'200+ Properties'},
+  {n:'02',t:'Commercial',s:'Office & Retail',d:'Grade-A offices, retail spaces, and mixed-use developments for businesses planting roots in Central India.',stat:'80+ Offices'},
+  {n:'03',t:'Land',s:'Plots & Agricultural',d:'Prime land parcels for development, agriculture, investment. Verified titles, strategic locations.',stat:'500+ Acres'},
+  {n:'04',t:'Pre-Leased',s:'Fixed ROI Assets',d:'Tenant-occupied properties, locked leases from Day 1. Fixed monthly income. Zero operational hassle. 8–10% ROI.',stat:'8–10% ROI'},
+  {n:'05',t:'Built-to-Suit',s:'Custom Development',d:"End-to-end custom builds tailored to corporate requirements — backed by Swastik Group's EPC division.",stat:'15+ BTS Projects'},
+  {n:'06',t:'Industrial',s:'Warehousing & Logistics',d:"Warehouse parks, industrial plots, private freight terminals — leveraging Swastik Group's logistics network.",stat:'2M+ sq.ft'},
+  {n:'07',t:'Investor Projects',s:'High-Growth Assets',d:'Curated investment opportunities in emerging Central India markets with AI-backed projections and due diligence.',stat:'₹200Cr+ Advisory'},
 ];
-function initServices(){
+function fillServices(){
   document.getElementById('services').innerHTML=`<div class="container">
-    <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:70px;gap:40px">
-      <div><div class="ov2 wu">What We Do</div><h2 class="h-d wu">Every dimension<br/>of <em>real estate.</em></h2></div>
-      <p class="bod wu" style="max-width:320px;text-align:right">Seven service verticals. One trusted advisory partner. Central India's most complete property platform.</p>
+    <div class="s-head">
+      <div><div class="ov wu">What We Do</div><h2 class="hd wu">Every dimension<br/>of <em>real estate.</em></h2></div>
+      <p class="bd wu" style="max-width:320px;text-align:right">Seven service verticals. One trusted advisory partner. Central India's most complete property platform.</p>
     </div>
-    <div>${SVCS.map(s=>`<div class="srow wf"><span class="sr-n">${s.n}</span><div><div class="sr-t">${s.t}</div><div class="sr-s">${s.s}</div></div><p class="sr-desc">${s.d}</p><span class="sr-stat">${s.stat}</span><span class="sr-arr">→</span></div>`).join('')}</div>
+    <div class="s-list">${SVCS.map(s=>`<div class="s-row wf"><span class="s-n">${s.n}</span><div><div class="s-t">${s.t}</div><div class="s-sub">${s.s}</div></div><p class="s-desc">${s.d}</p><span class="s-stat">${s.stat}</span><span class="s-arr">→</span></div>`).join('')}</div>
   </div>`;
 }
 
-// ── AI REPORT ─────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════
+   AI REPORT
+═══════════════════════════════════════════════════════ */
 const MATCHES=[{n:'Vijay Nagar Office',t:'Pre-Leased',p:'₹1.2Cr',r:'8.5%'},{n:'AB Road Commercial',t:'Commercial',p:'₹85L',r:'7.2%'},{n:'Scheme 54 Apartment',t:'Residential',p:'₹62L',r:null}];
 const BLAB=['₹10L','₹25L','₹50L','₹75L','₹1Cr','₹1.5Cr','₹2Cr','₹3Cr','₹5Cr','₹10Cr+'];
 
-function initAIReport(){
+function fillAIReport(){
   const sec=document.getElementById('ai-report');
   sec.innerHTML=`<div class="container">
     <div class="ai-layout">
       <div class="ai-stick">
-        <div class="ov2 wu">Core Feature</div>
-        <h2 class="h-d wu">Your AI<br/><em>Property Report</em></h2>
-        <p class="bod wu" style="margin-top:14px;max-width:360px">Enter your requirements. Our AI cross-references 10,000+ data points across Central India's market to deliver a personalized report in seconds.</p>
-        <div class="flist wu">
-          <div class="fi"><div class="ficon">◈</div><div><div class="ftit">Market Overview</div><div class="fdesc">Real-time sector analysis for your chosen city and locality.</div></div></div>
-          <div class="fi"><div class="ficon">◆</div><div><div class="ftit">Best-Fit Matches</div><div class="fdesc">3–5 curated properties matching your budget and goal.</div></div></div>
-          <div class="fi"><div class="ficon">◉</div><div><div class="ftit">Investment Forecast</div><div class="fdesc">Price trajectory and ROI projections backed by live data.</div></div></div>
+        <div class="ov wu">Core Feature</div>
+        <h2 class="hd wu">Your AI<br/><em>Property Report</em></h2>
+        <p class="bd wu" style="margin-top:14px;max-width:360px">Enter your requirements. Our AI cross-references 10,000+ data points across Central India's market to deliver a personalized report in seconds.</p>
+        <div class="ai-feats wu">
+          <div class="ai-feat"><div class="ai-dot"></div><div><div class="ai-ft">Market Overview</div><div class="ai-fd">Real-time sector analysis for your chosen city and locality.</div></div></div>
+          <div class="ai-feat"><div class="ai-dot"></div><div><div class="ai-ft">Best-Fit Matches</div><div class="ai-fd">3–5 curated properties matching your budget and goal.</div></div></div>
+          <div class="ai-feat"><div class="ai-dot"></div><div><div class="ai-ft">Investment Forecast</div><div class="ai-fd">Price trajectory and ROI projections backed by live data.</div></div></div>
         </div>
       </div>
       <div class="ai-card wr">
-        <div class="flbl" style="margin-bottom:8px">Configure Your Report</div>
+        <div class="ai-step">Configure Your Report</div>
         <div class="fld">
-          <div class="rrow"><span class="flbl">Budget Range</span><span class="rv" id="bval">₹1.2Cr</span></div>
+          <div class="rrow"><span class="flbl">Budget Range</span><span class="rv" id="bval">₹50L – ₹1.5Cr</span></div>
           <input type="range" id="bslider" min="0" max="9" value="4"/>
         </div>
         <div class="fld">
@@ -757,74 +953,71 @@ function initAIReport(){
             <button class="pill">Industrial</button>
           </div>
         </div>
-        <div class="fld"><div class="flbl">Location Preference</div><input class="finp" id="locinp" type="text" placeholder="e.g. Vijay Nagar, Indore"/></div>
+        <div class="fld"><div class="flbl">Location Preference</div><input class="finp" type="text" placeholder="e.g. Vijay Nagar, Indore"/></div>
         <div class="fld">
           <div class="flbl">Purpose</div>
           <div class="ptog">
             <button class="ptbtn on" id="p-self">Self-Use</button>
-            <button class="ptbtn" id="p-invest">Investment</button>
+            <button class="ptbtn" id="p-inv">Investment</button>
           </div>
         </div>
-        <button class="btn terra" id="ai-btn" style="width:100%;justify-content:center">Generate AI Report →</button>
-        
+        <button class="btn orange" id="ai-btn" style="width:100%;justify-content:center">Generate AI Report →</button>
         <div class="ai-res" id="ai-res">
-          <div class="flbl" style="margin-bottom:14px">Report Generated</div>
-          <div class="ftit" style="margin-bottom:14px">Indore Market Overview</div>
-          <p class="bod" id="ai-txt" style="font-size:14px;line-height:1.75;margin-bottom:24px"></p>
-          <div style="margin-bottom:28px">
-            ${MATCHES.map(m=>`<div class="mr"><div style="display:flex;flex-direction:column;gap:3px"><span class="mn">${m.n}</span><span class="mt">${m.t}</span></div><div style="text-align:right"><span class="mp">${m.p}</span>${m.r ? `<div class="mroi">ROI ${m.r}</div>` : ''}</div></div>`).join('')}
+          <div class="res-hd">Report Generated</div>
+          <div class="res-tit">Indore Market Overview</div>
+          <div class="res-txt" id="ai-txt"></div>
+          <div style="margin-bottom:18px">
+            ${MATCHES.map(m=>`<div class="mrow"><div><div class="m-n">${m.n}</div><div class="m-t">${m.t}</div></div><div style="text-align:right"><div class="m-p">${m.p}</div>${m.r?`<div class="m-r">ROI ${m.r}</div>`:''}</div></div>`).join('')}
           </div>
-          <div style="display:flex;gap:14px">
-            <button class="btn gold" style="flex:1;justify-content:center">Download PDF</button>
-            <button class="btn outline" style="flex:1;justify-content:center" onclick="openModal()">Talk to Advisor</button>
+          <div class="res-ctas">
+            <button class="btn gold">Download PDF</button>
+            <button class="btn outline" onclick="openModal()">Talk to Advisor</button>
           </div>
         </div>
       </div>
     </div>
   </div>`;
 
+  // Slider
   const sl=document.getElementById('bslider'),bv=document.getElementById('bval');
-  const updateB=()=>{
+  function updB(){
     const v=parseInt(sl.value);
-    const minVal = BLAB[Math.max(0,v-1)], maxVal = BLAB[Math.min(BLAB.length-1,v+1)];
-    bv.textContent=`${minVal} – ${maxVal}`;
-    const p=(v/(BLAB.length-1))*100;
-    sl.style.background=`linear-gradient(90deg,var(--gold) ${p}%,rgba(200,169,110,.18) ${p}%)`;
-  };
-  sl.addEventListener('input',updateB);updateB();
+    bv.textContent=BLAB[Math.max(0,v-1)]+' – '+BLAB[Math.min(9,v+1)];
+    const pct=(v/9)*100;
+    sl.style.background=`linear-gradient(90deg,var(--gold) ${pct}%,rgba(212,168,67,.18) ${pct}%)`;
+  }
+  sl.addEventListener('input',updB);updB();
 
+  // Pills
   document.querySelectorAll('.pills .pill').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.pills .pill').forEach(b=>b.classList.remove('on'));
-      btn.classList.add('on');
-    });
+    btn.addEventListener('click',()=>{document.querySelectorAll('.pills .pill').forEach(b=>b.classList.remove('on'));btn.classList.add('on');});
   });
 
-  const ps=document.getElementById('p-self'),pi=document.getElementById('p-invest');
-  ps.addEventListener('click',()=>{ps.classList.add('on');pi.classList.remove('on')});
-  pi.addEventListener('click',()=>{pi.classList.add('on');ps.classList.remove('on')});
+  // Purpose toggle
+  const ps=document.getElementById('p-self'),pi=document.getElementById('p-inv');
+  ps.addEventListener('click',()=>{ps.classList.add('on');pi.classList.remove('on');});
+  pi.addEventListener('click',()=>{pi.classList.add('on');ps.classList.remove('on');});
 
+  // Generate
   const btn=document.getElementById('ai-btn'),res=document.getElementById('ai-res'),ait=document.getElementById('ai-txt');
   btn.addEventListener('click',()=>{
-    btn.textContent='Analyzing Market Data…';btn.disabled=true;btn.style.opacity=.7;
+    btn.textContent='Analyzing Market Data…';btn.disabled=true;btn.style.opacity='.7';
     setTimeout(()=>{
-      btn.textContent='Regenerate Report';btn.disabled=false;btn.style.opacity=1;
+      btn.textContent='Regenerate Report';btn.disabled=false;btn.style.opacity='1';
       res.classList.add('show');
       typewriter(ait,'The Indore residential and commercial market shows 12–15% YoY appreciation across Vijay Nagar and AB Road corridors. Pre-leased Fortune 500 tenanted assets offer stable 8–10% fixed returns — ideal for conservative investors. Q1 2025 data signals continued demand surge for Grade-A commercial spaces.',18);
     },1600);
   });
 }
 
-function typewriter(el, text, speed) {
-  el.textContent = '';
-  let i = 0;
-  const int = setInterval(() => {
-    if (i < text.length) { el.textContent += text[i++]; }
-    else clearInterval(int);
-  }, speed);
+function typewriter(el,text,speed){
+  el.textContent='';let i=0;
+  const int=setInterval(()=>{if(i<text.length){el.textContent+=text[i++];}else clearInterval(int);},speed);
 }
 
-// ── WHY US ────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════
+   WHY US
+═══════════════════════════════════════════════════════ */
 const WSTATS=[
   {n:500,s:'+',l:'Projects Advised',sub:'Across Central India'},
   {n:5,s:'+',l:'Years Expertise',sub:'Deep market roots'},
@@ -837,67 +1030,60 @@ const WFEATS=[
   {i:'◉',t:'Swastik Group Backbone',d:"Backed by Swastik Group's EPC division, private freight terminal, and logistics network."},
   {i:'◇',t:'Timely Delivery',d:"Zero-delay project timelines with in-house construction and project management expertise."},
 ];
-
-function initWhyUs(){
-  const sec=document.getElementById('why-us');
-  sec.innerHTML=`<div class="container">
+function fillWhyUs(){
+  document.getElementById('why-us').innerHTML=`<div class="container">
     <div style="text-align:center;max-width:580px;margin:0 auto 90px">
-      <div class="ov2 wu" style="justify-content:center">Why Swastik Prime</div>
-      <h2 class="h-d wu">Authority built on<br/><em>real partnerships.</em></h2>
+      <div class="ov wu" style="justify-content:center">Why Swastik Prime</div>
+      <h2 class="hd wu">Authority built on<br/><em>real partnerships.</em></h2>
     </div>
-    <div class="wgrid">
+    <div class="w-grid">
       <div>
-        <h3 class="h-d wu" style="font-size:38px;margin-bottom:28px">What makes us<br/><em>different.</em></h3>
-        <div class="flist">
-          ${WFEATS.map(f=>`<div class="fi wl"><div class="ficon">${f.i}</div><div><div class="ftit">${f.t}</div><div class="fdesc">${f.d}</div></div></div>`).join('')}
+        <h3 class="hd wu" style="font-size:38px;margin-bottom:28px">What makes us<br/><em>different.</em></h3>
+        <div class="f-list">
+          ${WFEATS.map(f=>`<div class="f-item wl"><div class="f-icon">${f.i}</div><div><div class="f-tit">${f.t}</div><div class="f-desc">${f.d}</div></div></div>`).join('')}
         </div>
       </div>
-      <div class="wscards">
-        ${WSTATS.map(s=>`<div class="wcard wr"><div class="wbig"><span class="wcount" data-target="${s.n}" data-prefix="${s.p||''}" data-suffix="${s.s}">${s.p||''}0</span>${s.s}</div><div class="wlbl">${s.l}</div><div class="wsub">${s.sub}</div></div>`).join('')}
+      <div class="w-cards">
+        ${WSTATS.map(s=>`<div class="w-card wr"><div class="w-big"><span class="wcount" data-target="${s.n}" data-prefix="${s.p||''}" data-suffix="${s.s}">${s.p||''}0</span>${s.s}</div><div class="w-lbl">${s.l}</div><div class="w-sub">${s.sub}</div></div>`).join('')}
       </div>
     </div>
   </div>`;
 
   ScrollTrigger.create({
-    trigger:'.wscards',start:'top 80%',once:true,
+    trigger:'.w-cards',start:'top 80%',once:true,
     onEnter:()=>{
       document.querySelectorAll('.wcount').forEach(el=>{
-        const target=parseInt(el.dataset.target),prefix=el.dataset.prefix;
-        let cur=0;
-        const step=target/50;
-        const t=setInterval(()=>{
-          cur+=step;
-          if(cur>=target){cur=target;clearInterval(t);}
-          el.textContent=prefix+Math.floor(cur);
-        },25);
+        const target=parseInt(el.dataset.target),prefix=el.dataset.prefix||'';
+        let cur=0;const step=target/50;
+        const t=setInterval(()=>{cur+=step;if(cur>=target){cur=target;clearInterval(t);}el.textContent=prefix+Math.floor(cur);},25);
       });
     }
   });
 }
 
-// ── TESTIMONIALS ──────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════════════════════ */
 const TESTIS=[
   {q:"Swastik Prime identified a pre-leased asset with 8.5% fixed ROI within 72 hours of our brief. Their understanding of Central India's commercial corridors is unmatched.",n:'Rajesh Mehta',r:'CFO — Clifton Group',a:'RM'},
   {q:"Their land acquisition expertise in Bhopal's peripheral zones saved us months of due diligence. The AI-backed market report changed how we evaluate real estate.",n:'Vikram Singh',r:'Director of Infrastructure, NRK Group',a:'VS'},
   {q:"I was skeptical about the AI property report. It mapped my entire investment thesis to specific properties in Indore. I closed two deals in one month.",n:'Priya Agarwal',r:'Independent Investor, Indore',a:'PA'},
   {q:"The built-to-suit facility was delivered 3 weeks ahead of schedule. Swastik Group's EPC integration makes them a true one-stop shop.",n:'Suresh Tiwari',r:'Head of Logistics, Fortune 500 Co.',a:'ST'},
 ];
-
-function initTestimonials(){
-  const sec=document.getElementById('testimonials');
-  sec.innerHTML=`<div class="container">
-    <div class="tlayout">
-      <div class="tleft">
-        <div class="ov2 wu">Client Stories</div>
-        <h2 class="h-d wu">What our clients<br/><em>are saying.</em></h2>
-        <p class="bod wu" style="margin-top:14px">Trusted by corporate groups, family offices, and individual investors across Central India.</p>
-        <div class="tdots">
+function fillTestimonials(){
+  document.getElementById('testimonials').innerHTML=`<div class="container">
+    <div class="t-layout">
+      <div class="t-left">
+        <div class="ov wu">Client Stories</div>
+        <h2 class="hd wu">What our clients<br/><em>are saying.</em></h2>
+        <p class="wu" style="margin-top:14px">Trusted by corporate groups, family offices, and individual investors across Central India.</p>
+        <div class="t-dots">
           ${TESTIS.map((_,i)=>`<button class="tdot${i===0?' on':''}" data-i="${i}"></button>`).join('')}
         </div>
       </div>
-      <div class="ttrack wr">
-        <div class="tslides" id="tslides">
-          ${TESTIS.map(t=>`<div class="tslide"><div class="tcard"><span class="qm">“</span><p class="qt">“${t.q}”</p><div class="tmeta"><div class="tav">${t.a}</div><div><div class="tname">${t.n}</div><div class="trole">${t.r}</div></div><span class="tveri">Verified</span></div></div></div>`).join('')}
+      <div class="t-track wr">
+        <div class="t-slides" id="tslides">
+          ${TESTIS.map(t=>`<div class="t-slide"><div class="t-card"><span class="qm">"</span><p class="qt">"${t.q}"</p><div class="t-meta"><div class="t-av">${t.a}</div><div><div class="t-name">${t.n}</div><div class="t-role">${t.r}</div></div><span class="t-veri">Verified</span></div></div></div>`).join('')}
         </div>
       </div>
     </div>
@@ -906,40 +1092,35 @@ function initTestimonials(){
   let cur=0;
   const slides=document.getElementById('tslides');
   const dots=document.querySelectorAll('.tdot');
-  const goTo=(i)=>{
-    cur=(i+TESTIS.length)%TESTIS.length;
-    slides.style.transform=`translateX(-${cur*100}%)`;
-    dots.forEach((d,j)=>d.classList.toggle('on',j===cur));
-  };
+  function goTo(i){cur=(i+TESTIS.length)%TESTIS.length;slides.style.transform=`translateX(-${cur*100}%)`;dots.forEach((d,j)=>d.classList.toggle('on',j===cur));}
   dots.forEach(d=>d.addEventListener('click',()=>goTo(parseInt(d.dataset.i))));
   let timer=setInterval(()=>goTo(cur+1),5500);
   slides.addEventListener('mouseenter',()=>clearInterval(timer));
   slides.addEventListener('mouseleave',()=>{timer=setInterval(()=>goTo(cur+1),5500);});
 }
 
-// ── CONTACT ───────────────────────────────────────────────────────────
-const CINFO=[
-  {l:'Headquarters',v:'Indore, MP',s:'Madhya Pradesh'},
-  {l:'Also Present In',v:'Bhopal & Jabalpur',s:'Central India'},
-  {l:'Advisory Email',v:'hello@swastikprime',s:'Response within 24h'},
-  {l:'Group Backing',v:'Swastik Group',s:'EPC + Logistics + RE'},
-];
-
-function initContact(){
-  const sec=document.getElementById('contact');
-  sec.innerHTML=`<div class="container">
-    <div class="clayout">
+/* ═══════════════════════════════════════════════════════
+   CONTACT
+═══════════════════════════════════════════════════════ */
+function fillContact(){
+  document.getElementById('contact').innerHTML=`<div class="container">
+    <div class="c-layout">
       <div>
-        <div class="ov2 wu">Get in Touch</div>
-        <h2 class="h-d wu" style="margin-bottom:20px">Ready to make your<br/><em>best property decision?</em></h2>
-        <p class="bod wu" style="margin-bottom:44px;max-width:400px">Whether you're buying, selling, or investing — our advisory team is ready to guide you with AI-backed insights every step of the way.</p>
+        <div class="ov wu">Get in Touch</div>
+        <h2 class="hd wu" style="margin-bottom:20px">Ready to make your<br/><em>best property decision?</em></h2>
+        <p class="bd wu" style="margin-bottom:44px;max-width:400px">Whether you're buying, selling, or investing — our advisory team is ready to guide you with AI-backed insights every step of the way.</p>
         <div style="display:flex;gap:16px;flex-wrap:wrap" class="wu">
-          <button class="btn terra" onclick="openModal()">List My Property →</button>
+          <button class="btn orange" onclick="openModal()">List My Property →</button>
           <a class="btn outline" href="https://wa.me/91XXXXXXXXXX" target="_blank" rel="noopener">WhatsApp Us</a>
         </div>
       </div>
-      <div class="ccards wr">
-        ${CINFO.map(c=>`<div class="cc"><div class="flbl">${c.l}</div><div class="ccv">${c.v}</div><div class="ccs">${c.s}</div></div>`).join('')}
+      <div class="c-cards wr">
+        ${[
+          {l:'Headquarters',v:'Indore, MP',s:'Madhya Pradesh'},
+          {l:'Also Present In',v:'Bhopal & Jabalpur',s:'Central India'},
+          {l:'Advisory Email',v:'hello@swastikprime',s:'Response within 24h'},
+          {l:'Group Backing',v:'Swastik Group',s:'EPC + Logistics + RE'},
+        ].map(c=>`<div class="c-card"><div class="flbl">${c.l}</div><div class="c-val">${c.v}</div><div class="c-sub">${c.s}</div></div>`).join('')}
       </div>
     </div>
   </div>`;
