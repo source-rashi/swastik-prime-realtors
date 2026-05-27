@@ -66,18 +66,18 @@ a, button { cursor: none; }
 
 .t-display {
   font-family: var(--font-display);
-  font-size: clamp(56px, 6.5vw, 96px);
+  font-size: clamp(60px, 7vw, 104px);
   font-weight: 500;
-  line-height: 1.03;
-  letter-spacing: -0.02em;
+  line-height: 1.01;
+  letter-spacing: -0.025em;
   color: var(--cream);
 }
 .t-display-sm {
   font-family: var(--font-display);
-  font-size: clamp(42px, 4.8vw, 72px);
+  font-size: clamp(44px, 5vw, 76px);
   font-weight: 500;
   line-height: 1.07;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
   color: var(--cream);
 }
 .t-body {
@@ -92,9 +92,13 @@ a, button { cursor: none; }
   font-size: 9px;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: var(--cream-30);
+  color: rgba(237,228,214,0.38);
 }
-.t-italic { font-style: italic; color: var(--gold); }
+.t-italic {
+  font-style: italic;
+  color: var(--gold);
+  font-weight: 400;
+}
 
 /* ── LAYOUT ── */
 .container { max-width: 1440px; margin: 0 auto; padding: 0 64px; }
@@ -142,18 +146,18 @@ a, button { cursor: none; }
 
 /* ── GLASS CARD ── */
 .glass {
-  background: rgba(13,34,40,0.7);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid var(--gold-15);
+  background: rgba(8,26,32,0.82);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(200,169,110,0.22);
   position: relative;
 }
 .glass::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold) 40%, rgba(200,169,110,0.3) 100%);
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold) 0%, var(--terra) 60%, transparent 100%);
 }
 
 /* ── SECTION ── */
@@ -311,6 +315,12 @@ a, button { cursor: none; }
   top: 0;
   height: 100vh;
   overflow: hidden;
+  /* Full-height left vignette for extra depth */
+  background: linear-gradient(
+    90deg,
+    rgba(7,22,26,0.55) 0%,
+    transparent 45%
+  );
 }
 
 /* THREE.JS canvas fills the sticky panel */
@@ -323,21 +333,30 @@ a, button { cursor: none; }
 /* ── ACT PANELS ── */
 .act-panel {
   position: absolute;
-  left: 64px;
-  bottom: 150px;
-  max-width: 600px;
+  left: 0;
+  bottom: 130px;
+  max-width: 620px;
   z-index: 20;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  pointer-events: none;
+  padding: 48px 60px 52px 64px;
+  /* Dark gradient so text is ALWAYS readable over 3D scene */
+  background: linear-gradient(
+    105deg,
+    rgba(7,22,26,0.88) 0%,
+    rgba(7,22,26,0.72) 65%,
+    transparent 100%
+  );
+  border-radius: 0 8px 8px 0;
 }
-.act-panel .t-overline { margin-bottom: 4px; }
+.act-panel .t-overline { margin-bottom: 2px; }
 .act-panel .cta-row {
   display: flex;
   gap: 16px;
   align-items: center;
   pointer-events: all;
+  flex-wrap: wrap;
 }
 
 /* ── ACT PROGRESS DOTS ── */
@@ -368,12 +387,11 @@ a, button { cursor: none; }
 /* ── PROPERTY CARD (Act 3) ── */
 #hero-card {
   position: absolute;
-  right: 72px;
-  bottom: 160px;
-  width: 275px;
+  right: 64px;
+  bottom: 140px;
+  width: 272px;
   z-index: 30;
-  padding: 30px;
-  transition: none; /* controlled by GSAP */
+  padding: 28px;
 }
 .card-badge {
   font-family: var(--font-mono);
@@ -437,23 +455,23 @@ a, button { cursor: none; }
   z-index: 25;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  background: rgba(7,22,26,0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--gold-15);
+  background: rgba(6,20,26,0.90);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(200,169,110,0.18);
 }
 .stat-item {
-  padding: 22px 40px;
-  border-right: 1px solid var(--gold-15);
+  padding: 24px 44px;
+  border-right: 1px solid rgba(200,169,110,0.1);
 }
 .stat-item:last-child { border-right: none; }
 .stat-num {
   font-family: var(--font-display);
-  font-size: 34px;
+  font-size: 36px;
   font-weight: 500;
   color: var(--gold);
   line-height: 1;
-  margin-bottom: 6px;
+  margin-bottom: 7px;
 }
 
 /* ── SCROLL CUE ── */
@@ -1032,3 +1050,33 @@ input[type=range]::-webkit-slider-thumb {
 @keyframes successPop { from{transform:scale(0)} to{transform:scale(1)} }
 .success-title { font-family: var(--font-display); font-size: 28px; font-weight: 500; color: var(--cream); margin-bottom: 12px; }
 .success-sub   { font-size: 14px; color: var(--cream-60); line-height: 1.85; max-width: 280px; margin: 0 auto 24px; }
+
+/* ══════════════════════════════════════════════════════
+   BUG-FIX OVERRIDES
+══════════════════════════════════════════════════════ */
+
+/* Invisible act panels must not block pointer events */
+.act-panel[style*="opacity:0"] { pointer-events: none !important; }
+
+/* GSAP handles all act-panel transitions */
+.act-panel { transition: none; }
+
+/* Hero overall z-index fix: non-canvas children sit above canvas */
+#hero-sticky > *:not(canvas) { position: relative; z-index: 10; }
+
+/* Act dots — full reset so browser defaults don't add borders/padding */
+.act-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(200,169,110,0.25);
+  transition: background 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  display: block;
+  border: none;
+  cursor: none;
+  padding: 0;
+}
+.act-dot.active {
+  background: var(--gold);
+  transform: scale(1.9);
+}
