@@ -18,12 +18,12 @@ export function initScene(container) {
 
   // Scene
   scene = new THREE.Scene();
-  scene.background = new THREE.Color('#07161A');
-  scene.fog = new THREE.FogExp2('#07161A', 0.019);
+  scene.background = new THREE.Color('#06141A');
+  scene.fog = new THREE.FogExp2('#06141A', 0.016);
 
   // Camera — starts wide/high for Act 1
   camera = new THREE.PerspectiveCamera(54, window.innerWidth / window.innerHeight, 0.1, 300);
-  camera.position.set(0, 18, 42);
+  camera.position.set(0, 22, 52);
   camera.lookAt(10, 5, 0);
 
   setupLights();
@@ -39,10 +39,10 @@ export function initScene(container) {
 // ── LIGHTS ──────────────────────────────────────────────────────
 function setupLights() {
   // Ambient — deep teal, low
-  scene.add(new THREE.AmbientLight('#1a3535', 2.8));
+  scene.add(new THREE.AmbientLight('#162E32', 2.2)); // slightly less ambient so buildings have more contrast
 
   // Key — warm gold, top-right, casts shadows
-  const key = new THREE.DirectionalLight('#C8A96E', 2.4);
+  const key = new THREE.DirectionalLight('#E8D5A8', 2.0); // cooler, cleaner gold
   key.position.set(14, 32, 12);
   key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048);
@@ -104,13 +104,11 @@ const BUILDING_DATA = [
 
 function buildCity() {
   const bodyMat = (ei) => new THREE.MeshStandardMaterial({
-    color: '#0D2228',
-    emissive: '#C8A96E',
-    emissiveIntensity: ei,
-    metalness: 0.88,
-    roughness: 0.20,
-    transparent: true,
-    opacity: 0.93,
+    color: '#0A1E26',          // deeper, cleaner dark teal
+    emissive: new THREE.Color('#C8A96E'),
+    emissiveIntensity: ei * 0.7, // reduce so buildings look crisp not muddy
+    metalness: 0.92,
+    roughness: 0.18,
   });
 
   const roofMat = new THREE.MeshStandardMaterial({
@@ -177,9 +175,9 @@ function buildWindowGrid(bx, bz, bw, bd, bh) {
       if (Math.random() > 0.30) {
         const lit = Math.random() > 0.45;
         const wm = new THREE.MeshStandardMaterial({
-          color: lit ? '#D4C090' : '#1a3030',
-          emissive: lit ? '#C8A96E' : '#0a1818',
-          emissiveIntensity: lit ? 0.85 : 0.04,
+          color: lit ? '#F0E0B0' : '#0e2030',
+          emissive: lit ? '#E8C878' : '#080e14',
+          emissiveIntensity: lit ? 1.1 : 0.03,
         });
         const w = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.44), wm);
         w.position.set(bx + (c - cols / 2) * 0.82 + 0.38, 1.1 + r * 1.45, bz + bd / 2 + 0.012);
