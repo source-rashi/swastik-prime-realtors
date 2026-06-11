@@ -1,0 +1,51 @@
+{
+  "info": {
+    "name": "Swastik Prime API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3001/api/health"
+      }
+    },
+    {
+      "name": "Submit Buyer Lead",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:3001/api/leads/buyer",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Rashi Agarwal\",\n  \"phone\": \"+91 9876543210\",\n  \"email\": \"rashi@example.com\",\n  \"propertyType\": \"Residential\",\n  \"location\": \"Vijay Nagar, Indore\",\n  \"budget\": \"₹1.5 Cr\",\n  \"purpose\": \"self-use\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Submit Seller Lead",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:3001/api/leads/seller",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Property Owner\",\n  \"phone\": \"+91 9876543210\",\n  \"propertyType\": \"Commercial\",\n  \"location\": \"AB Road, Indore\",\n  \"size\": \"2400 sq.ft\",\n  \"expectedPrice\": \"₹1.2 Cr\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Generate AI Report",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:3001/api/ai-report",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"budget\": \"₹1.5 Cr\",\n  \"propertyType\": \"Residential\",\n  \"location\": \"Vijay Nagar, Indore\",\n  \"purpose\": \"self-use\"\n}"
+        }
+      }
+    }
+  ]
+}
