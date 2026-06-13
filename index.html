@@ -780,6 +780,66 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
 <script>
 gsap.registerPlugin(ScrollTrigger);
 
+// ── API CONFIG ────────────────────────────────────────────────────
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3001/api'
+  : '/api'; // when frontend + backend deployed on same domain
+
+/**
+ * Reusable fetch wrapper with error handling
+ * @param {string} endpoint - e.g. '/leads/buyer'
+ * @param {object} data - POST body
+ * @returns {object} response data
+ */
+async function apiPost(endpoint, data) {
+  const res = await fetch(API_BASE + endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
+}
+
+/**
+ * Show a toast notification (success or error)
+ * @param {string} message
+ * @param {'success'|'error'} type
+ */
+function showToast(message, type = 'success') {
+  // Remove existing toast
+  document.getElementById('toast')?.remove();
+
+  const toast = document.createElement('div');
+  toast.id = 'toast';
+  toast.style.cssText = `
+    position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:${type === 'success' ? '#1a3a1a' : '#3a1a1a'};
+    border:1px solid ${type === 'success' ? '#4CAF7A' : '#E07B3A'};
+    color:${type === 'success' ? '#4CAF7A' : '#E07B3A'};
+    font-family:var(--fm);font-size:11px;letter-spacing:2px;text-transform:uppercase;
+    padding:14px 28px;z-index:9000;
+    border-radius:2px;opacity:0;transition:all 0.4s ease;
+    white-space:nowrap;
+  `;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Animate in
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+  });
+
+  // Animate out after 3.5s
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(10px)';
+    setTimeout(() => toast.remove(), 400);
+  }, 3500);
+}
+
 
 
 /* ── LOADER ──────────────────────────────────────────── */
