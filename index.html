@@ -1184,7 +1184,7 @@ function fillAIReport(){
       <div class="ai-card wr">
         <div class="ai-step">Configure Your Report</div>
         <div class="fld">
-          <div class="rrow"><span class="flbl">Budget Range</span><span class="rv" id="bval">₹50L – ₹1.5Cr</span></div>
+          <div class="rrow"><span class="flbl">Budget Range</span><span class="rv" id="bval"><span id="bmin">₹50L</span> – <span id="bmax">₹1.5Cr</span></span></div>
           <input type="range" id="bslider" min="0" max="9" value="4"/>
         </div>
         <div class="fld">
@@ -1205,16 +1205,20 @@ function fillAIReport(){
             <button class="ptbtn" id="p-inv">Investment</button>
           </div>
         </div>
-        <button class="btn orange" id="ai-btn" style="width:100%;justify-content:center">Generate AI Report →</button>
-        <div class="ai-res" id="ai-res">
+        <button class="btn orange" id="gbtn" style="width:100%;justify-content:center">
+          <span id="gspin" class="api-spinner" style="display:none;width:14px;height:14px;border-width:1.5px;margin-right:8px"></span>
+          <span id="gtxt">Generate AI Report →</span>
+        </button>
+        <div class="ai-res" id="ares">
           <div class="res-hd">Report Generated</div>
-          <div class="res-tit">Indore Market Overview</div>
-          <div class="res-txt" id="ai-txt"></div>
-          <div style="margin-bottom:18px">
+          <div class="res-tit">Market Overview</div>
+          <div class="res-txt" id="atxt"></div>
+          <div id="match-container">
             ${MATCHES.map(m=>`<div class="mrow"><div><div class="m-n">${m.n}</div><div class="m-t">${m.t}</div></div><div style="text-align:right"><div class="m-p">${m.p}</div>${m.r?`<div class="m-r">ROI ${m.r}</div>`:''}</div></div>`).join('')}
           </div>
+          <div id="advisor-note" style="display:none;font-size:13px;color:var(--w60);font-style:italic;margin-top:14px;padding:14px;border-left:2px solid var(--gold)"></div>
           <div class="res-ctas">
-            <button class="btn gold">Download PDF</button>
+            <button class="btn gold" id="pdf-btn">Download PDF</button>
             <button class="btn outline" onclick="openModal()">Talk to Advisor</button>
           </div>
         </div>
@@ -1223,10 +1227,11 @@ function fillAIReport(){
   </div>`;
 
   // Slider
-  const sl=document.getElementById('bslider'),bv=document.getElementById('bval');
+  const sl=document.getElementById('bslider'),bmin=document.getElementById('bmin'),bmax=document.getElementById('bmax');
   function updB(){
     const v=parseInt(sl.value);
-    bv.textContent=BLAB[Math.max(0,v-1)]+' – '+BLAB[Math.min(9,v+1)];
+    bmin.textContent=BLAB[Math.max(0,v-1)];
+    bmax.textContent=BLAB[Math.min(9,v+1)];
     const pct=(v/9)*100;
     sl.style.background=`linear-gradient(90deg,var(--gold) ${pct}%,rgba(212,168,67,.18) ${pct}%)`;
   }
@@ -1242,16 +1247,127 @@ function fillAIReport(){
   ps.addEventListener('click',()=>{ps.classList.add('on');pi.classList.remove('on');});
   pi.addEventListener('click',()=>{pi.classList.add('on');ps.classList.remove('on');});
 
-  // Generate
-  const btn=document.getElementById('ai-btn'),res=document.getElementById('ai-res'),ait=document.getElementById('ai-txt');
-  btn.addEventListener('click',()=>{
-    btn.textContent='Analyzing Market Data…';btn.disabled=true;btn.style.opacity='.7';
-    setTimeout(()=>{
-      btn.textContent='Regenerate Report';btn.disabled=false;btn.style.opacity='1';
-      res.classList.add('show');
-      typewriter(ait,'The Indore residential and commercial market shows 12–15% YoY appreciation across Vijay Nagar and AB Road corridors. Pre-leased Fortune 500 tenanted assets offer stable 8–10% fixed returns — ideal for conservative investors. Q1 2025 data signals continued demand surge for Grade-A commercial spaces.',18);
-    },1600);
+  // Store last report for PDF download
+  let lastReport = null;
+  let lastParams = null;
+
+  document.getElementById('gbtn').addEventListener('click', async () => {
+    // Get form values
+    const budget = document.getElementById('bmin').textContent + ' – ' + document.getElementById('bmax').textContent;
+    const propertyType = document.querySelector('.pill.on')?.textContent || 'Residential';
+    const location = document.querySelector('#ai-report .finp[type=text]')?.value || 'Indore';
+    const purpose = document.querySelector('.ptbtn.on')?.dataset?.p || document.querySelector('.ptbtn.on')?.textContent || 'Self-Use';
+
+    if (!location || location.trim().length < 2) {
+      showToast('Please enter a location preference', 'error');
+      return;
+    }
+
+    // Loading state
+    document.getElementById('gtxt').textContent = 'Analyzing Market…';
+    document.getElementById('gspin').style.display = 'block';
+    document.getElementById('gbtn').disabled = true;
+    document.getElementById('gbtn').style.opacity = '.7';
+    // Hide previous results
+    document.getElementById('ares').classList.remove('show');
+
+    try {
+      const result = await apiPost('/ai-report', {
+        budget,
+        propertyType,
+        location,
+        purpose: purpose.toLowerCase().includes('invest') ? 'investment' : 'self-use',
+      });
+
+      // Store for PDF download
+      lastReport = result.report;
+      lastParams = { budget, propertyType, location, purpose };
+
+      // Render market overview
+      const mo = result.report.marketOverview;
+      const mEl = document.getElementById('atxt');
+      mEl.textContent = '';
+
+      // Typewriter the summary
+      const fullText = (mo.headline || '') + ' ' + (mo.summary || '') + (mo.keyInsight ? ' Key insight: ' + mo.keyInsight : '');
+      let i = 0;
+      const iv = setInterval(() => {
+        if (i < fullText.length) { mEl.textContent += fullText[i++]; }
+        else clearInterval(iv);
+      }, 14);
+
+      // Render matches dynamically
+      const matchContainer = document.getElementById('match-container');
+      if (matchContainer && result.report.matches) {
+        matchContainer.innerHTML = result.report.matches.map(m => `
+          <div class="mrow" style="flex-direction:column;align-items:flex-start;gap:8px">
+            <div style="display:flex;justify-content:space-between;width:100%;align-items:flex-start">
+              <div><div class="m-n">${m.title}</div><div class="m-t">${m.type} · ${m.location}</div></div>
+              <div style="text-align:right;flex-shrink:0;margin-left:16px">
+                <div class="m-p">${m.price}</div>
+                ${m.roi ? `<div class="m-r">ROI ${m.roi}</div>` : ''}
+              </div>
+            </div>
+            ${m.whyThisFits ? `<div style="font-size:12px;color:var(--w60);font-style:italic">${m.whyThisFits}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // Show advisor note if present
+      const advEl = document.getElementById('advisor-note');
+      if (advEl && result.report.advisorNote) {
+        advEl.textContent = result.report.advisorNote;
+        advEl.style.display = 'block';
+      }
+
+      // Show results panel
+      document.getElementById('ares').classList.add('show');
+      showToast('Report generated successfully ✓', 'success');
+
+    } catch (err) {
+      console.error('AI Report error:', err);
+      showToast('Report failed — check connection', 'error');
+    } finally {
+      document.getElementById('gtxt').textContent = 'Regenerate Report';
+      document.getElementById('gspin').style.display = 'none';
+      document.getElementById('gbtn').disabled = false;
+      document.getElementById('gbtn').style.opacity = '1';
+    }
   });
+
+  // PDF Download button
+  document.getElementById('pdf-btn')?.addEventListener('click', async () => {
+    if (!lastReport) { showToast('Generate a report first', 'error'); return; }
+
+    const pdfBtn = document.getElementById('pdf-btn');
+    pdfBtn.textContent = 'Preparing PDF…';
+    pdfBtn.disabled = true;
+
+    try {
+      const res = await fetch(API_BASE + '/ai-report/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ report: lastReport, params: lastParams }),
+      });
+
+      if (!res.ok) throw new Error('PDF generation failed');
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `swastik-prime-report-${Date.now()}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('PDF downloaded ✓', 'success');
+    } catch (err) {
+      showToast('PDF download failed', 'error');
+    } finally {
+      pdfBtn.textContent = 'Download PDF';
+      pdfBtn.disabled = false;
+    }
+  });
+}
 }
 
 function typewriter(el,text,speed){
