@@ -1131,12 +1131,72 @@ function tickHero(){
 /* ── MODAL ───────────────────────────────────────────── */
 function openModal(){document.getElementById('modal').style.display='flex';document.body.style.overflow='hidden';}
 function closeModal(){document.getElementById('modal').style.display='none';document.body.style.overflow='';}
-function submitModal(){
-  gsap.to('#mf',{opacity:0,y:-14,duration:.35,ease:'power2.in',onComplete:()=>{
-    document.getElementById('mf').style.display='none';
-    document.getElementById('mok').style.display='block';
-    gsap.from('#mok',{opacity:0,y:14,duration:.5,ease:'power3.out'});
-  }});
+async function submitModal() {
+  // Collect all form values
+  const inputs = document.querySelectorAll('#mf .finp');
+  const name     = inputs[0]?.value?.trim();
+  const phone    = inputs[1]?.value?.trim();
+  const email    = inputs[2]?.value?.trim();
+  const location = inputs[3]?.value?.trim();
+  const size     = inputs[4]?.value?.trim();
+  const expectedPrice = inputs[5]?.value?.trim();
+  const propertyType  = inputs[6]?.value?.trim(); // select
+
+  // Basic validation
+  if (!name) { showToast('Please enter your name', 'error'); return; }
+  if (!phone) { showToast('Please enter your phone number', 'error'); return; }
+  if (!propertyType) { showToast('Please select property type', 'error'); return; }
+  if (!location) { showToast('Please enter your location', 'error'); return; }
+  if (!size) { showToast('Please enter property size', 'error'); return; }
+  if (!expectedPrice) { showToast('Please enter expected price', 'error'); return; }
+
+  // Disable submit button
+  const submitBtn = document.querySelector('#mf .btn.orange');
+  const originalText = submitBtn?.textContent;
+  if (submitBtn) {
+    submitBtn.textContent = 'Submitting…';
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '.7';
+  }
+
+  try {
+    const result = await apiPost('/leads/seller', {
+      name, phone, email, location, size, expectedPrice, propertyType,
+    });
+
+    // Show success state
+    gsap.to('#mf', {
+      opacity: 0, y: -14, duration: .35, ease: 'power2.in',
+      onComplete: () => {
+        document.getElementById('mf').style.display = 'none';
+        const ok = document.getElementById('mok');
+        ok.style.display = 'block';
+
+        // Show lead ID if returned
+        if (result.leadId) {
+          const idEl = document.createElement('div');
+          idEl.style.cssText = 'font-family:var(--fm);font-size:10px;letter-spacing:2px;color:var(--w30);margin-top:12px;text-transform:uppercase';
+          idEl.textContent = `Lead ID: ${result.leadId}`;
+          ok.querySelector('.ok-sub, .oksub')?.after(idEl);
+        }
+
+        gsap.from(ok, { opacity: 0, y: 14, duration: .5, ease: 'power3.out' });
+      }
+    });
+
+    showToast('Property submitted successfully ✓', 'success');
+
+  } catch (err) {
+    console.error('Lead submission error:', err);
+    showToast(err.message || 'Submission failed — please try again', 'error');
+
+    // Re-enable submit button
+    if (submitBtn) {
+      submitBtn.textContent = originalText;
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+    }
+  }
 }
 
 /* ═══════════════════════════════════════════════════════
