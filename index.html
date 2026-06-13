@@ -570,12 +570,52 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;heigh
   #ai-fab span{display:none}
   #ai-fab{padding:12px;border-radius:50%;right:82px}
 }
+
+/* ── API LOADING OVERLAY ── */
+#api-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(15,28,46,.7);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+}
+#api-loader.show { display: flex; }
+.api-spinner {
+  width: 44px;
+  height: 44px;
+  border: 2px solid rgba(212,168,67,.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.api-loader-text {
+  font-family: var(--fm);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--w30);
+}
+
+/* ── TOAST ── */
+#toast { pointer-events: none; }
 </style>
 </head>
 <body>
 
 <!-- GRAIN -->
 <div id="noise" aria-hidden="true"></div>
+
+<!-- API LOADER OVERLAY -->
+<div id="api-loader">
+  <div class="api-spinner"></div>
+  <div class="api-loader-text" id="api-loader-text">Processing…</div>
+</div>
 <!-- PROGRESS -->
 <div id="pbar" aria-hidden="true"></div>
 
@@ -838,6 +878,14 @@ function showToast(message, type = 'success') {
     toast.style.transform = 'translateX(-50%) translateY(10px)';
     setTimeout(() => toast.remove(), 400);
   }, 3500);
+}
+
+function showLoader(text = 'Processing…') {
+  document.getElementById('api-loader-text').textContent = text;
+  document.getElementById('api-loader').classList.add('show');
+}
+function hideLoader() {
+  document.getElementById('api-loader').classList.remove('show');
 }
 
 
